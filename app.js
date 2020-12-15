@@ -52,7 +52,7 @@ app.use(session({
 
 const index = require('./routes');
 
-app.use(config.baseUrl, index);
-// app.use('/', index);
+// app.use(config.baseUrl, index);
+app.use('/', index);
 
 module.exports = app;
