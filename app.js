@@ -50,9 +50,9 @@ app.use(session({
     saveUninitialized: false
   }));
 
-const index = require('./routes');
+const router = require('./routes');
 
-// app.use(config.baseUrl, index);
-app.use('/', index);
+app.use(config.baseUrl, router);
+// app.use('/', index);
 
 module.exports = app;

@@ -11,44 +11,24 @@ const nodemailer=require('nodemailer')
 const User = require('./models/user-model');
 const Contract = require('./models/contract-model');
 const Notice = require('./models/notice-model')
-// const { Console } = require('console');
-// const { findOne } = require("./models/user-model");
 var crypto = require('crypto');
-// const e = require('express');
-
-
 // const config = require('./config.js');
+const contractManagerRouter = express.Router();
+router.use('/contractmanager', contractManagerRouter);
 
-// var app = express();
-
-// var mainRouter = express.Router();
-// indexRouter.get('/', function(req, res) {
-// 	res.send('Hello World!');
-// });
-
-// const contractManagerRouter = express.Router();
-// var fooRouter = express.Router();
-// fooRouter.get('/', function(req, res) {
-//   res.send('Hello from foo');
-// });
-// router.use('/contractmanager', contractManagerRouter);
-
-// app.use(config.baseUrl, indexRouter);
-
-
-router.get('/',(req,res,next)=>{
+contractManagerRouter.get('/',(req,res,next)=>{
     
     // console.log(req.session)
     let template = {
         layout: false
     }
     if (req.session.currentUser) {
-        res.redirect('/displayPendingContracts');
+        res.redirect('/contractmanager/displayPendingContracts');
     } else {
         res.render('login-register/login', template);
     }
 })
-router.post('/', async(req,res,next)=>{
+contractManagerRouter.post('/', async(req,res,next)=>{
     try{
         console.log('INSIDE /contractmanager/ POST')
         // console.log("Entering Login POST Method")
@@ -92,7 +72,7 @@ router.post('/', async(req,res,next)=>{
                         await deleteDirectoryContent(path.join(__dirname,"uploadedContracts"))
                         await deleteDirectoryContent(path.join(__dirname,"temporaryFiles"))
 
-                        res.redirect("/displayPendingContracts")                                       //Redirect to home.
+                        res.redirect("/contractmanager/displayPendingContracts")                                       //Redirect to home.
                     }else{
                         errorMsg="Incorrect email or password."                 //Password is inccorrect.
                         formData={errorMsg:errorMsg,email:email,layout:false}
@@ -104,7 +84,7 @@ router.post('/', async(req,res,next)=>{
     }catch(err){console.log("Error en Login Post:",err)}
 
 })
-router.get('/register',(req,res,next)=>{
+contractManagerRouter.get('/register',(req,res,next)=>{
     // if (req.session!==undefined) {
     //     res.render('contracts');
     // } else {
@@ -115,7 +95,7 @@ router.get('/register',(req,res,next)=>{
         res.render('login-register/register', template);
     // }
 })
-router.post('/register',async (req,res,next)=>{
+contractManagerRouter.post('/register',async (req,res,next)=>{
     try{
         const{username, usersurname, email, repeatemail, password, repeatedpassword, role,role1,role2,role3,role4} = req.body;
         var errorMsg = [];
@@ -173,12 +153,12 @@ router.post('/register',async (req,res,next)=>{
     }
     
 })
-router.get('/logout', (req, res, next) => {
+contractManagerRouter.get('/logout', (req, res, next) => {
     req.session.destroy((err) => {
         res.redirect('/');
     })
 })
-router.get('/createContract',(req,res,next)=>{
+contractManagerRouter.get('/createContract',(req,res,next)=>{
     if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
         if (req.session!==undefined) {
             res.render('contracts');
@@ -187,7 +167,7 @@ router.get('/createContract',(req,res,next)=>{
         }
     }
 })
-router.post("/uploadNewContractToDB",upload.any(), async (req,res)=>{
+contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             if (req.session===undefined) {
@@ -309,7 +289,7 @@ router.post("/uploadNewContractToDB",upload.any(), async (req,res)=>{
 
 });
 
-router.get("/displayClosedContracts", async (req,res)=>{
+contractManagerRouter.get("/displayClosedContracts", async (req,res)=>{
     try{
         // console.log("INSIDE DISPLAY CLOSED CONTRACTS")
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
@@ -324,7 +304,7 @@ router.get("/displayClosedContracts", async (req,res)=>{
         }
     }catch(err){console.log("Error en DisplayClosedContracts Get:",err)}
 })
-router.get("/displayPendingContracts", async (req,res)=>{
+contractManagerRouter.get("/displayPendingContracts", async (req,res)=>{
     try{
         // console.log(req.session.currentUser)
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
@@ -374,7 +354,7 @@ router.get("/displayPendingContracts", async (req,res)=>{
         }
     }catch(err){console.log("Error en DisplayPendingContracts Get:",err)}
 })
-router.post("/approveContract/:id",async(req,res)=>{
+contractManagerRouter.post("/approveContract/:id",async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
@@ -513,7 +493,7 @@ router.post("/approveContract/:id",async(req,res)=>{
         res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
     }
 })
-router.get("/deleteContract/:id",async(req,res)=>{
+contractManagerRouter.get("/deleteContract/:id",async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             // console.log(req.params.id)
@@ -536,7 +516,7 @@ router.get("/deleteContract/:id",async(req,res)=>{
         res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
     }
 })
-router.post("/rejectContract/:id",async(req,res)=>{
+contractManagerRouter.post("/rejectContract/:id",async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
     
@@ -604,7 +584,7 @@ router.post("/rejectContract/:id",async(req,res)=>{
         console.log("Error en Reject Contract ID Post:",err)}
 
 })
-router.get("/alertsContracts",async (req,res,next)=>{
+contractManagerRouter.get("/alertsContracts",async (req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
@@ -623,7 +603,7 @@ router.get("/alertsContracts",async (req,res,next)=>{
         }
     }catch(err){console.log("Error en AlertsContracts Get:",err)}
 });
-router.post("/updateAlerts/:alertType",async(req,res)=>{
+contractManagerRouter.post("/updateAlerts/:alertType",async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const alertType=req.params.alertType;
@@ -653,7 +633,7 @@ router.post("/updateAlerts/:alertType",async(req,res)=>{
         res.redirect('/alertsContracts?errorMsg='+errorMsg)
     }
 })
-router.get("/editContracts/:id",async(req,res,next)=>{
+contractManagerRouter.get("/editContracts/:id",async(req,res,next)=>{
     try{
         // console.log("entered the edit contract function")
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
@@ -696,7 +676,7 @@ router.get("/editContracts/:id",async(req,res,next)=>{
     }catch(err){console.log("Error en EditContracts ID Get:",err)}
 
 })
-router.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
+contractManagerRouter.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
@@ -732,7 +712,7 @@ router.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
         res.redirect("/editContracts/"+id+"?errorMsg="+errorMsg)
     }
 })
-router.get("/profile",async(req,res,next)=>{
+contractManagerRouter.get("/profile",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
                 //Obtener info del Usuario actual (sesion iniciada)
@@ -744,7 +724,7 @@ router.get("/profile",async(req,res,next)=>{
         }
     }catch(err){console.log("Error en Profile Get:",err)}
 });
-router.post("/profile/addRoles/:email",async(req,res,next)=>{
+contractManagerRouter.post("/profile/addRoles/:email",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
@@ -771,7 +751,7 @@ router.post("/profile/addRoles/:email",async(req,res,next)=>{
     }catch(err){console.log("Error en Profile Add Roles Post:",err)}
     
 })
-router.post("/editContracts/uploadFiles/:pq/",upload.any(),async(req,res)=>{
+contractManagerRouter.post("/editContracts/uploadFiles/:pq/",upload.any(),async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
                 if (req.files.length===0){
@@ -803,7 +783,7 @@ router.post("/editContracts/uploadFiles/:pq/",upload.any(),async(req,res)=>{
         res.redirect("/editContracts/"+id+"?errorMsg="+errorMsg)
     }
 })
-router.get("/deleteRole/:role",async(req,res)=>{
+contractManagerRouter.get("/deleteRole/:role",async(req,res)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const email = req.session.currentUser.email
@@ -821,7 +801,7 @@ router.get("/deleteRole/:role",async(req,res)=>{
         }
     }catch(err){console.log("Error en deleteRole Role Get:",err)}
 })
-router.get("/profile/changePassword",async(req,res,next)=>{
+contractManagerRouter.get("/profile/changePassword",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             // console.log(req.query)
@@ -842,7 +822,7 @@ router.get("/profile/changePassword",async(req,res,next)=>{
         
     }catch(err){console.log("Error en /Profile/changePassword Get:",err)}
 })
-router.post("/profile/uploadNewPassword",async(req,res,next)=>{
+contractManagerRouter.post("/profile/uploadNewPassword",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const {currentPass,newPass,repeatedPass}=req.body
@@ -876,7 +856,7 @@ router.post("/profile/uploadNewPassword",async(req,res,next)=>{
     }catch(err){console.log("Error en /profile/uploadNewPAssword: ",err)}
 })
 
-router.get("/forgotPassword",async(req,res,next)=>{
+contractManagerRouter.get("/forgotPassword",async(req,res,next)=>{
     try{
         let template = {
             layout: false
@@ -887,7 +867,7 @@ router.get("/forgotPassword",async(req,res,next)=>{
     }
     
 })
-router.post("/forgotPassword",async(req,res,next)=>{
+contractManagerRouter.post("/forgotPassword",async(req,res,next)=>{
     try {
 
         let userEmail = req.body.email
@@ -937,7 +917,7 @@ router.post("/forgotPassword",async(req,res,next)=>{
     }
 })
 
-router.get("/resetPassword/:token",async(req,res,next)=>{
+contractManagerRouter.get("/resetPassword/:token",async(req,res,next)=>{
     try{
         // res.render("forgotPassNewPass")
         let token = req.params.token
@@ -954,7 +934,7 @@ router.get("/resetPassword/:token",async(req,res,next)=>{
     
 
 })
-router.post("/resetPassword/:token",async(req,res,next)=>{
+contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
     // console.log("INSIDE RESETPASSWORD/:TOKEN")
     try{
 
@@ -1039,7 +1019,7 @@ router.post("/resetPassword/:token",async(req,res,next)=>{
     }
 })
 
-router.get("/activateAccount/:token",async(req,res,next)=>{
+contractManagerRouter.get("/activateAccount/:token",async(req,res,next)=>{
     try{
         let token = req.params.token
         const user = await User.findOne({ accountActivationToken: token });
@@ -1054,7 +1034,7 @@ router.get("/activateAccount/:token",async(req,res,next)=>{
     }
 })
 
-router.post("/notifyChanges/:id",async(req,res,next)=>{
+contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
     try{
         if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             let id = req.params.id
@@ -3466,3 +3446,4 @@ async function createRoleSelector(role){
 }
 
 module.exports=router;
+module.exports=contractManagerRouter;
