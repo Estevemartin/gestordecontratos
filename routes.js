@@ -1083,7 +1083,7 @@ contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
         console.log("Error on notifyChanges/:id -->",err)
     }
 })
-contractManagerRouter.get("/downloadFile/contracts/:pq/:filename",async(req,res,next)=>{
+contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     try{
         console.log("Inside Downloadfile")
         const {pq,filename} = req.params
