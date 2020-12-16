@@ -1083,7 +1083,17 @@ contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
         console.log("Error on notifyChanges/:id -->",err)
     }
 })
+contractManagerRouter.get("/downloadFile/:filepath",async(req,res,next)=>{
+    try{
+        console.log("Inside Downloadfile")
+        let filepath = req.params.filepath
+        console.log("filepath:" , filepath)
 
+        res.download(filepath)
+    }catch(err){
+        console.log("Error al descargar --> ", filepath)
+    }
+})
 
 function createContractRoleSelectorObject(user,contract){
     // console.log("Inside createContractRoleSelectorObject")
