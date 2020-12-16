@@ -111,8 +111,9 @@
                     <div class="document-card">
                         <p>{{fileName}}</p>
                         <div class="icons-files">
+                            <a href="public/contracts/{{../pq}}/{{fileName}}" download="{{fileName}}" ><ion-icon id="download-btn" name="download-outline"></ion-icon></a>
                             {{!-- <a href="{{filePath}}" download="{{fileName}}" ><ion-icon id="download-btn" name="download-outline"></ion-icon></a> --}}
-                            <a href="/contractmanager/downloadFile/{{../pq}}/{{fileName}}"><ion-icon id="download-btn" name="download-outline"></ion-icon></a>
+                            {{!-- <a href="/contractmanager/downloadFile/{{../pq}}/{{fileName}}"><ion-icon id="download-btn" name="download-outline"></ion-icon></a> --}}
                             {{#if ../showeditButons}}<a href="/deleteFiles/{{../pq}}/{{fileName}}"><ion-icon id="delete-btn" name="trash-outline"></ion-icon></a>{{/if}}
                         </div>
                     </div>
