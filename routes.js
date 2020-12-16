@@ -325,17 +325,19 @@ contractManagerRouter.get("/displayPendingContracts", async (req,res)=>{
             contractList.forEach(async contract=>{
                 contract.importe = numberToCurrency(contract.importe)
                 let allowReject = allowRejection(contract.historico);
-                // console.log(allowReject)
+                // console.log("allowReject:",allowReject)
                 // contract.roleObj = await createRoleSelector(currentUser[0].role)
                 contract.roleObj = createContractRoleSelectorObject(currentUser[0],contract)
                 let allowApprove
+                // console.log("contract.roleObj:",contract.roleObj)
                 // let allowApprove = true;
                 // console.log(allowApprove)
-                if (!allowReject){
+                if (allowReject){
                     allowApprove = canUserSign(currentUser,contract)
                 } else {
                     allowApprove = false
                 }
+                // console.log("allowApprove:",allowApprove)
                 // console.log("AllowReject:",allowReject)
                 contract.allowApprove = allowApprove
                 contract.allowReject = allowReject
@@ -499,7 +501,7 @@ contractManagerRouter.get("/deleteContract/:id",async(req,res)=>{
             // console.log(req.params.id)
             const id=req.params.id
             const contractToDelete = await Contract.findOne({_id:id})
-            console.log(contractToDelete.folder)
+            // console.log(contractToDelete.folder)
             // console.log("GET INSIDE ID: ", id)
             // await deleteDirectoryContent(contractToDelete.folder)
             // console.log("Folder Emptied")
@@ -1085,13 +1087,13 @@ contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
 })
 contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     try{
-        console.log("Inside Downloadfile")
+        // console.log("Inside Downloadfile")
         const {pq,filename} = req.params
         const realPqFolder = pq.split("-")[0]+"-"+pq.split("-")[1]
-        console.log("PQ:", realPqFolder)
-        console.log("FileName:", filename)
+        // console.log("PQ:", realPqFolder)
+        // console.log("FileName:", filename)
         const filepath = __dirname + "/public/contracts/" + realPqFolder + "/" + filename 
-        console.log("filepath:" , filepath)
+        // console.log("filepath:" , filepath)
 
         res.download(filepath,filename)
     }catch(err){
@@ -2582,7 +2584,7 @@ async function sendNoticeEmail(noticetype,contract,info=''){
         cc:noticeTemplate[0].cc,
         subject:emailSubject,
         html: htmlEmailBody,
-        //attachments:uploadedFiles
+        attachments:uploadedFiles
     }
     
     // console.log(contractList)
@@ -2993,7 +2995,7 @@ function formatRolesToResumedRoles(user){
 }
 async function sendEmail(emailParams){
     // console.log("ENTERED EMAIL")
-    // console.log(emailParams)
+    console.log(emailParams)
     let separator =process.env.FILE_SEPARATOR
     let attachmentsObj = []
     if (emailParams.attachments){
@@ -3010,7 +3012,7 @@ async function sendEmail(emailParams){
         }
     }
     
-    // console.log("Attachments Obj:",attachmentsObj)
+    console.log("Attachments Obj:",attachmentsObj)
     let transporter = nodemailer.createTransport({
         host: emailParams.host,
         port: emailParams.port,
