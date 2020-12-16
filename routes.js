@@ -1087,10 +1087,12 @@ contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     try{
         console.log("Inside Downloadfile")
         const {pq,filename} = req.params
+        console.log("PQ:", pq)
+        console.log("FileName:", filename)
         const filepath = __dirname + "/contracts/" + pq + "/" + filename 
         console.log("filepath:" , filepath)
 
-        res.download(filepath)
+        res.download(filepath,filename)
     }catch(err){
         console.log("Error al descargar --> ", filepath)
     }
