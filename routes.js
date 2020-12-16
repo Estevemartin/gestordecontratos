@@ -1087,9 +1087,10 @@ contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     try{
         console.log("Inside Downloadfile")
         const {pq,filename} = req.params
-        console.log("PQ:", pq)
+        const realPqFolder = pq.split("-")[0]+"-"+pq.split("-")[1]
+        console.log("PQ:", realPqFolder)
         console.log("FileName:", filename)
-        const filepath = __dirname + "/contracts/" + pq + "/" + filename 
+        const filepath = __dirname + "/public/contracts/" + realPqFolder + "/" + filename 
         console.log("filepath:" , filepath)
 
         res.download(filepath,filename)
