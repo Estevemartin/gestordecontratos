@@ -1,7 +1,7 @@
         <div class="second-nav">
             <ul>
-                <li><a href="/" class="link-nav ">Contracts</a></li>
-                <li><a href="/alertsContracts" class="link-nav link-nav-active">Alerts</a></li>
+                <li><a href="/contractmanager/" class="link-nav ">Contracts</a></li>
+                <li><a href="/contractmanager/alertsContracts" class="link-nav link-nav-active">Alerts</a></li>
                 <li><span><a href="" class="disabled">Indicators</a></span></li>
                 <li><span><a href="" class="disabled">Permissions</a></span></li>
             </ul>
@@ -39,7 +39,7 @@
         <div class="mess-container1">
         {{#each notice}}
         <div class="mess-container" id="notice-type-{{noticeType}}">
-            <form class="form-alertas" action="/updateAlerts/{{noticeType}}" method="post">
+            <form class="form-alertas" action="/contractmanager/updateAlerts/{{noticeType}}" method="post">
                 <input id="email-list" type="email" placeholder="For:" name="email" value="{{destinatario}}" multiple>
                 <input type="email" placeholder="Cc:" name="cc" value="{{cc}}" multiple>
                 {{!-- <input type="text" placeholder="Subject:" name="subject" value="{{subject}}">
