@@ -1101,6 +1101,21 @@ contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     }
 })
 
+contractManagerRouter.get("/indicators",async(req,res,next)=>{
+    try{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+            //     //Obtener info del Usuario actual (sesion iniciada)
+            // const sesionEmail = req.session.currentUser.email
+            // let currentUser = await User.find({email:sesionEmail})
+            // user = currentUser[0]
+            // // console.log(currentUser)
+            res.render('indicators')
+        }
+    }catch(err){console.log("Error en Profile Get:",err)}
+})
+
+
+
 function createContractRoleSelectorObject(user,contract){
     // console.log("Inside createContractRoleSelectorObject")
     // console.log("User:",user)
@@ -1430,7 +1445,7 @@ function getEmailBodyNotifyChanges(pq,client,comercial,work,amount,finalUser,won
                 <p><u>Modifications applied:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="https://gestordecontratos-nqx8w.ondigitalocean.app/">Manage Contract</a></h4>
+                <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -1592,7 +1607,7 @@ function getEmailBodyEscaladoDG(pq,client,comercial,work,amount,finalUser,wonDat
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="https://gestordecontratos-nqx8w.ondigitalocean.app/">Manage Contract</a></h4>
+                <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -1754,7 +1769,7 @@ function getEmailBodyEscaladoDirectores(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="https://gestordecontratos-nqx8w.ondigitalocean.app/">Manage Contract</a></h4>
+                <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -1917,7 +1932,7 @@ function getEmailBodyContractRejected(pq,client,comercial,work,amount,finalUser,
                 <p><u>Rejection aditional information:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to modify and update the contract:</p>
-                <h4><a class="link" href="https://gestordecontratos-nqx8w.ondigitalocean.app/">Manage Contract</a></h4>
+                <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2079,7 +2094,7 @@ function getEmailBodyNewContractCreated(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="https://gestordecontratos-nqx8w.ondigitalocean.app/">Manage Contract</a></h4>
+                <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2995,7 +3010,7 @@ function formatRolesToResumedRoles(user){
 }
 async function sendEmail(emailParams){
     // console.log("ENTERED EMAIL")
-    console.log(emailParams)
+    // console.log(emailParams)
     let separator =process.env.FILE_SEPARATOR
     let attachmentsObj = []
     if (emailParams.attachments){
@@ -3012,7 +3027,7 @@ async function sendEmail(emailParams){
         }
     }
     
-    console.log("Attachments Obj:",attachmentsObj)
+    // console.log("Attachments Obj:",attachmentsObj)
     let transporter = nodemailer.createTransport({
         host: emailParams.host,
         port: emailParams.port,

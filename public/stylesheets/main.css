@@ -1089,7 +1089,44 @@ textarea{
         color: var(--color-black);
     }
 
+/*--------------- CANVAS ------------------*/
 
+.kpis-container{
+    display:flex;
+    flex-wrap: wrap;
+	justify-content: center;
+}
+canvas{
+    height: 100%;
+    width: 100%;
+}
+.chart-container{
+    margin:10px 5% 40px;
+    width: 40%;
+    min-width:320px;
+}
+.kpis-filters{
+    display:flex;
+    flex-wrap: wrap;
+	justify-content: center;
+    margin:40px 5% 0px;
+}
+.kpis-filters input{
+    width:190px;
+    height:47px;
+}
+.kpis-filters>select{
+    margin-right: 20px;
+    width: 170px;
+}
+/* .kpis-filters>div{
+    display:flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+.kpis-filters>div>input{
+    margin-bottom: 0px;
+} */
 
 /*--------------------- RESPONSIVE CARD CONTRACT HOME + MENU (contracts, alerts, indicator, permissions) ---------------------*/
     @media(max-width: 1253px){
