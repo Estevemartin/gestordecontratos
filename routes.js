@@ -16,6 +16,17 @@ var crypto = require('crypto');
 const contractManagerRouter = express.Router();
 router.use('/contractmanager', contractManagerRouter);
 
+
+// let i = 0;
+
+// function increment() {
+//   i++;
+//   console.log(i);
+// }
+
+// setInterval(increment, 1000);
+
+
 contractManagerRouter.get('/',(req,res,next)=>{
     
     // console.log(req.session)
