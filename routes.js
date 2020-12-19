@@ -16,173 +16,166 @@ var crypto = require('crypto');
 const contractManagerRouter = express.Router();
 router.use('/contractmanager', contractManagerRouter);
 
-
-// let i = 0;
-
-// function increment() {
-//   i++;
-//   console.log(i);
-// }
-
 setInterval(sendRemindersCronJobs, 1000*60*60*10);
 
-
 async function sendRemindersCronJobs(){
-    try{
+  try{
+    const contractList = await Contract.find({mainStatus:"Pending"})
+    const usersList = await User.find({},'email role')
+    // console.log('usersList:',usersList)
+    // console.log('contractList:',contractList)
+    contractList.forEach(async contract=>{
 
+      let emailsEnviados = contract.historico.filter(accion=>{
+        if (accion.icono === 'mail-unread-outline'){
+          return true
+        }
+      })
+      // console.log("emailsEnviados:",emailsEnviados)
+      let lastEmailSent = emailsEnviados[emailsEnviados.length-1]
+      // console.log('lastEmailSent:',lastEmailSent)
+
+      let days=getDaysBetweenDates(lastEmailSent.fecha,getCurrentDate())
+      // console.log('dias desde último envio:',days)
+
+      if (days>=1){
+        console.log("Lets send reminder")
+        // console.log('Firmas:',contract.firmas)
+        let destinatariosReminder = getDestinatariosReminder(contract.firmas,usersList,contract.historico)
+        // console.log("Destinatarios Reminder:",destinatariosReminder)
+        const {id,pq,historico,comercial,cliente,obra,usuarioFinal,nPedido,importe,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,uploadedFiles} = contract
         
-        const contractList = await Contract.find({mainStatus:"Pending"})
-        const usersList = await User.find({},'email role')
-        // console.log(usersList)
-
-        // console.log(contractList)
-        contractList.forEach(async contract=>{
-
-            let emailsEnviados = contract.historico.filter(accion=>{
-                if (accion.icono === 'mail-unread-outline'){
-                    return true
-                }
-            })
-            // console.log(emailsEnviados)
-            let lastEmailSent = emailsEnviados[emailsEnviados.length-1]
-            // console.log(lastEmailSent)
-
-
-            let days=getDaysBetweenDates(lastEmailSent.fecha,getCurrentDate())
-            // console.log(days)
-
-            if (days>=1){
-                console.log("Lets send reminder")
-                // console.log(contract.firmas)
-                let destinatariosReminder = getDestinatariosReminder(contract.firmas,usersList)
-
-                const {id,pq,historico,comercial,cliente,obra,usuarioFinal,nPedido,importe,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,uploadedFiles} = contract
-                emailParams={
-                    host:process.env.EMAIL_HOST,
-                    port:process.env.EMAIL_PORT,
-                    secure:false,
-                    // service:"Hotmail",
-                    auth: {
-                        user: process.env.EMAIL_USER,
-                        pass: process.env.EMAIL_PASS
-                    },
-                    from:'"Contract Manager - Reminder [Action Required]"<estevemartinmauri@hotmail.com>',
-                    to:destinatariosReminder,
-                    subject:"Contract Manager - Reminder [Action Required]",
-                    html:getHtmlReminderEmailBody(pq,cliente,comercial,obra,importe,usuarioFinal,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,nPedido),
-                    attachments:uploadedFiles
-                }
-                await sendEmail(emailParams)
-                nuevaAccion={
-                    accion:"Recordatorio Enviado",
-                    persona:'Sistema Automático',
-                    icono:"mail-unread-outline",
-                    fecha: getCurrentDate(),
-                    observaciones:""
-                }
-                historico.push(nuevaAccion)
-                await Contract.findByIdAndUpdate({"_id":id},{"historico":historico})
-
-
-            }
-        })
-    }catch(error){
-        console.log("Sending Reminder Error:",error)
-    }
+        emailParams={
+          host:process.env.EMAIL_HOST,
+          port:process.env.EMAIL_PORT,
+          secure:false,
+          // service:"Hotmail",
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          },
+          from:'"Contract Manager - Reminder [Action Required]"<estevemartinmauri@hotmail.com>',
+          to:destinatariosReminder,
+          subject:"Contract Manager - Reminder [Action Required]",
+          html:getHtmlReminderEmailBody(pq,cliente,comercial,obra,importe,usuarioFinal,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,nPedido),
+          attachments:uploadedFiles
+        }
+        await sendEmail(emailParams)
+        nuevaAccion={
+          accion:"Recordatorio Enviado",
+          persona:'Sistema Automático',
+          icono:"mail-unread-outline",
+          fecha: getCurrentDate(),
+          observaciones:""
+        }
+        historico.push(nuevaAccion)
+        await Contract.findByIdAndUpdate({"_id":id},{"historico":historico})
+      }
+    })
+  }catch(error){
+      console.log("Sending Reminder Error:",error)
+  }
 } 
 
 sendRemindersCronJobs()
 
-function getDestinatariosReminder(firmas,users){
+function getDestinatariosReminder(firmas,users,historico){
     // console.log(firmas,users)
     let destinatarios = []
 
-    //Autorizado - Comercial
-    if(!firmas.autComercial.value){
-        users.forEach(user=>{
-            if(user.role.includes('Comercial - Autorizado')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
+    //Get the historico after the last reject
+    let relevantHistorico = getRelevantHistorico(historico)
+    // console.log("Historico Relevante (Posterior a Último Rechazo):",relevantHistorico)
+
+    //Count Nº de Escalados in Historico
+    let numEscalados = countEscalados(relevantHistorico)
+    // console.log("Número de Escalados:",numEscalados)
+
+    if (numEscalados===0){
+        //Autorizado - Comercial
+        if(!firmas.autComercial.value){
+            users.forEach(user=>{
+                if(user.role.includes('Comercial - Autorizado')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Autorizado - Operaciones
+        if(!firmas.autOperaciones.value){
+            users.forEach(user=>{
+                if(user.role.includes('Operaciones - Autorizado')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Autorizado - PRL
+        if(!firmas.autPRL.value){
+            users.forEach(user=>{
+                if(user.role.includes('PRL - Autorizado')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Autorizado - CRiesgos
+        if(!firmas.autCRiesgos.value){
+            users.forEach(user=>{
+                if(user.role.includes('Control de Riesgos - Autorizado')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+    } else if (numEscalados===1){
+         //Director - Comercial
+        if(!firmas.dirComercial.value){
+            users.forEach(user=>{
+                if(user.role.includes('Comercial - Director')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Director - Operaciones
+        if(!firmas.dirOperaciones.value){
+            users.forEach(user=>{
+                if(user.role.includes('Operaciones - Director')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Director - PRL
+        if(!firmas.dirPRL.value){
+            users.forEach(user=>{
+                if(user.role.includes('PRL - Director')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+
+        //Director - CRiesgos
+        if(!firmas.dirCRiesgos.value){
+            users.forEach(user=>{
+                if(user.role.includes('Control de Riesgos - Director')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
+    } else if (numEscalados===2){
+        // Dirección General
+        if(!firmas.dirGeneral.value){
+            users.forEach(user=>{
+                if(user.role.includes('Dirección General')&&!destinatarios.includes(user.email)){
+                    destinatarios.push(user.email)
+                }
+            })
+        }
     }
 
-    //Autorizado - Operaciones
-    if(!firmas.autOperaciones.value){
-        users.forEach(user=>{
-            if(user.role.includes('Operaciones - Autorizado')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Autorizado - PRL
-    if(!firmas.autPRL.value){
-        users.forEach(user=>{
-            if(user.role.includes('PRL - Autorizado')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Autorizado - CRiesgos
-    if(!firmas.autCRiesgos.value){
-        users.forEach(user=>{
-            if(user.role.includes('Control de Riesgos - Autorizado')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Director - Comercial
-    if(!firmas.dirComercial.value){
-        users.forEach(user=>{
-            if(user.role.includes('Comercial - Director')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Director - Operaciones
-    if(!firmas.dirOperaciones.value){
-        users.forEach(user=>{
-            if(user.role.includes('Operaciones - Director')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Director - PRL
-    if(!firmas.dirPRL.value){
-        users.forEach(user=>{
-            if(user.role.includes('PRL - Director')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-    //Director - CRiesgos
-    if(!firmas.dirCRiesgos.value){
-        users.forEach(user=>{
-            if(user.role.includes('Control de Riesgos - Director')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-
-    // Dirección General
-    if(!firmas.dirGeneral.value){
-        users.forEach(user=>{
-            if(user.role.includes('Dirección General')&&!destinatarios.includes(user.email)){
-                destinatarios.push(user.email)
-            }
-        })
-    }
-
-
-    console.log(destinatarios)
+    // console.log(destinatarios)
     return destinatarios
-
 }
 function getDaysBetweenDates(initialDate,finalDate){
     initialDateNewFormat = initialDate.split('/')[2]+"-"+initialDate.split('/')[1]+"-"+initialDate.split('/')[0]
