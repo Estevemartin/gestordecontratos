@@ -24,9 +24,199 @@ router.use('/contractmanager', contractManagerRouter);
 //   console.log(i);
 // }
 
-// setInterval(increment, 1000);
+setInterval(sendRemindersCronJobs, 1000*60*60*10);
 
 
+async function sendRemindersCronJobs(){
+    try{
+
+        
+        const contractList = await Contract.find({mainStatus:"Pending"})
+        const usersList = await User.find({},'email role')
+        // console.log(usersList)
+
+        // console.log(contractList)
+        contractList.forEach(async contract=>{
+
+            let emailsEnviados = contract.historico.filter(accion=>{
+                if (accion.icono === 'mail-unread-outline'){
+                    return true
+                }
+            })
+            // console.log(emailsEnviados)
+            let lastEmailSent = emailsEnviados[emailsEnviados.length-1]
+            // console.log(lastEmailSent)
+
+
+            let days=getDaysBetweenDates(lastEmailSent.fecha,getCurrentDate())
+            // console.log(days)
+
+            if (days>=1){
+                console.log("Lets send reminder")
+                // console.log(contract.firmas)
+                let destinatariosReminder = getDestinatariosReminder(contract.firmas,usersList)
+
+                const {id,pq,historico,comercial,cliente,obra,usuarioFinal,nPedido,importe,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,uploadedFiles} = contract
+                emailParams={
+                    host:process.env.EMAIL_HOST,
+                    port:process.env.EMAIL_PORT,
+                    secure:false,
+                    // service:"Hotmail",
+                    auth: {
+                        user: process.env.EMAIL_USER,
+                        pass: process.env.EMAIL_PASS
+                    },
+                    from:'"Contract Manager - Reminder [Action Required]"<estevemartinmauri@hotmail.com>',
+                    to:destinatariosReminder,
+                    subject:"Contract Manager - Reminder [Action Required]",
+                    html:getHtmlReminderEmailBody(pq,cliente,comercial,obra,importe,usuarioFinal,fechaStatusWon,fechaRecepcion,fechaCreaccionApp,nPedido),
+                    attachments:uploadedFiles
+                }
+                await sendEmail(emailParams)
+                nuevaAccion={
+                    accion:"Recordatorio Enviado",
+                    persona:'Sistema Automático',
+                    icono:"mail-unread-outline",
+                    fecha: getCurrentDate(),
+                    observaciones:""
+                }
+                historico.push(nuevaAccion)
+                await Contract.findByIdAndUpdate({"_id":id},{"historico":historico})
+
+
+            }
+        })
+    }catch(error){
+        console.log("Sending Reminder Error:",error)
+    }
+} 
+
+sendRemindersCronJobs()
+
+function getDestinatariosReminder(firmas,users){
+    // console.log(firmas,users)
+    let destinatarios = []
+
+    //Autorizado - Comercial
+    if(!firmas.autComercial.value){
+        users.forEach(user=>{
+            if(user.role.includes('Comercial - Autorizado')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Autorizado - Operaciones
+    if(!firmas.autOperaciones.value){
+        users.forEach(user=>{
+            if(user.role.includes('Operaciones - Autorizado')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Autorizado - PRL
+    if(!firmas.autPRL.value){
+        users.forEach(user=>{
+            if(user.role.includes('PRL - Autorizado')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Autorizado - CRiesgos
+    if(!firmas.autCRiesgos.value){
+        users.forEach(user=>{
+            if(user.role.includes('Control de Riesgos - Autorizado')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Director - Comercial
+    if(!firmas.dirComercial.value){
+        users.forEach(user=>{
+            if(user.role.includes('Comercial - Director')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Director - Operaciones
+    if(!firmas.dirOperaciones.value){
+        users.forEach(user=>{
+            if(user.role.includes('Operaciones - Director')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Director - PRL
+    if(!firmas.dirPRL.value){
+        users.forEach(user=>{
+            if(user.role.includes('PRL - Director')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+    //Director - CRiesgos
+    if(!firmas.dirCRiesgos.value){
+        users.forEach(user=>{
+            if(user.role.includes('Control de Riesgos - Director')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+
+    // Dirección General
+    if(!firmas.dirGeneral.value){
+        users.forEach(user=>{
+            if(user.role.includes('Dirección General')&&!destinatarios.includes(user.email)){
+                destinatarios.push(user.email)
+            }
+        })
+    }
+
+
+    console.log(destinatarios)
+    return destinatarios
+
+}
+function getDaysBetweenDates(initialDate,finalDate){
+    initialDateNewFormat = initialDate.split('/')[2]+"-"+initialDate.split('/')[1]+"-"+initialDate.split('/')[0]
+    finalDateNewFormat = finalDate.split('/')[2]+"-"+finalDate.split('/')[1]+"-"+finalDate.split('/')[0]
+    const initialDateFormated = new Date(initialDateNewFormat)
+    const finalDateFormated = new Date(finalDateNewFormat)
+    // console.log(initialDateFormated.toDateString())
+    let dateDiffInMiliseconds =  finalDateFormated.getTime() - initialDateFormated.getTime()
+    let dateDiffInDays = dateDiffInMiliseconds/(1000*60*60*24)
+    // console.log(initialDateFormated.getDate())
+    
+    let noLabourDays = 0
+    for (i=0;i<dateDiffInDays+1;i++){
+      let checkingDate = new Date()
+      checkingDate.setDate(initialDateFormated.getDate()+i)
+      if (checkingDate.getDay()===0||checkingDate.getDay()===6){
+        noLabourDays+=1      
+      }
+    //   console.log(checkingDate.toDateString(),"--->",checkingDate.getDay(),"No Labour days:",noLabourDays)
+    }
+    
+    let labourDays=dateDiffInDays-noLabourDays
+    // console.log("Total Days:",dateDiffInDays)
+    // console.log("No Labour days:",noLabourDays)
+    // console.log("Labour Days:",labourDays)
+    
+    return labourDays
+  }
+
+
+
+
+
+//#region
 contractManagerRouter.get('/',(req,res,next)=>{
     
     // console.log(req.session)
@@ -299,7 +489,6 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
     }catch(err){console.log("Error en Upload New Contract:",err)}
 
 });
-
 contractManagerRouter.get("/displayClosedContracts", async (req,res)=>{
     try{
         // console.log("INSIDE DISPLAY CLOSED CONTRACTS")
@@ -1124,9 +1313,9 @@ contractManagerRouter.get("/indicators",async(req,res,next)=>{
         }
     }catch(err){console.log("Error en Profile Get:",err)}
 })
+//#endregion
 
-
-
+//#region
 function createContractRoleSelectorObject(user,contract){
     // console.log("Inside createContractRoleSelectorObject")
     // console.log("User:",user)
@@ -1310,6 +1499,155 @@ function validateEmail(email) {
     // console.log("result", result)
     return result;
 }
+
+function getHtmlReminderEmailBody(pq,client,comercial,work,amount,finalUser,wonDate,receptionDate,appCreationDate,nPedido){
+    const emailBody = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password has been reseted</title>
+        <style>
+            
+            *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html,body, input, button{
+                font-family: calibri, sans-serif;
+            }
+            body{
+                height: 100%;
+                padding:20px;
+                color:#303030;
+            }
+            .container{
+                /* background-color: aqua; */
+            }
+            h1{
+                text-align: center;
+                margin:20px 0px 0px 0px;
+                color:#00A2D1;
+                font-weight: 700;
+            }
+            h2{
+                text-align: center;
+                color:#00A2D1;
+                font-weight: 200;
+                margin:0px;
+            }
+            h3{
+                color:#303030;
+                margin: 20px 0px;
+            }
+            h4{
+                font-size: 18pt;
+                padding-left:2%;
+            }
+            p{
+                padding-bottom:20px;
+                margin-left:0px;
+            }
+            a{
+                
+                /* margin-left:20px; */
+                /* margin:40px; */
+                /* margin:40px 0px; */
+            }
+            .link{
+                /* padding:15px; */
+                color: #00A2D1;
+                /* border-radius: 5px; */
+                text-decoration: none;
+                /* margin:50px; */
+                border:none;
+                outline: none;
+    
+            } 
+            .link-container{
+                padding:15px;
+                background-color: #00A2D1;
+                border-radius: 5px; 
+                width: 140px;
+                text-align: center;
+            }
+            .row-after-link{
+                margin-top:20px;
+                /* padding:0px; */
+            }
+            .row-before-link{
+                margin-bottom: 5px;
+                            padding:0px;
+    
+            }
+            .name{
+                font-weight: 500;
+                font-size: 16pt;
+                margin-bottom:0px;
+                padding:0px;
+                font-family: arial;
+            }
+            .small{
+                font-size: 10pt;
+                margin:0px;
+                padding: 0px;
+                /* height: 12px; */
+                /* margin-bottom:45px; */
+                line-height: 16px;
+            }
+            img{
+                margin-top:15px;
+            }
+            a{
+                text-decoration: none;
+            }
+            
+        </style>
+    </head>
+    <body>
+        
+        <div class="container">
+        <h1>ASSA ABLOY</h1>
+        <h2>Contract Manager</h2>
+        <h3>Contract Reminder (Order Number: `+nPedido+`)</h3>
+        <p>The following contract needs to be accepted or rejected in the <b>Contract Manager</b> Platform.</p>
+        <table>
+            <tr>
+                <td><b>PQ: </b>`+pq+`</td>
+                <td><b>Work: </b>`+work+`</td>
+                <td><b>WON Date: </b>`+wonDate+`</td>
+            </tr>
+            <tr>
+                <td><b>Client: </b>`+client+`</td>
+                <td><b>Amount: </b>`+amount+`</td>
+                <td><b>Reception Date: </b>`+receptionDate+`</td>
+            </tr>
+            <tr>
+                <td><b>Commercial: </b>`+comercial+`</td>
+                <td><b>Final User: </b>`+finalUser+`</td>
+                <td><b>App Creation Date: </b`+appCreationDate+`</td>
+            </tr>
+        </table>
+        <p>Please, find all the documents related to this contract attached to this email.</p>
+        <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
+        <h4><a class="link" href="www.mpaautomation.com/contractmanager/">Manage Contract</a></h4>
+        <p class="row-after-link">Thank you.</p>
+        <p>Best regards,</p>
+        <p class="name">Esteve Martín</p>
+        <p class="small"><i><u>CEO & Founder at MPA Solutions</u><br>
+            Phone: +34 60 60 148<br>
+            Email: <a href="mailto:esteve.martin@mpasolutions.es">esteve.martin@mpasolutions.es</a><br>
+            <a href="http://www.mpasolutions.es">www.mpasolutions.es</a></i></p>
+
+        <img src="http://www.mpasolutions.es/logo_high_resolution.png" height="47"/>
+    </div>
+        
+    </body>
+    </html>`
+    return emailBody
+}
+
 function getEmailBodyNotifyChanges(pq,client,comercial,work,amount,finalUser,wonDate,receptionDate,appCreationDate,nPedido,info){
     const emailBody=`<!DOCTYPE html>
     <html lang="en">
@@ -3486,6 +3824,9 @@ async function createRoleSelector(role){
     if (roleCountVariable>1){roleObj.singleRole = true}else{roleObj.singleRole = false}
     return roleObj
 }
+//#endregion
+
+
 
 module.exports=router;
 module.exports=contractManagerRouter;
