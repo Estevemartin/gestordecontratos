@@ -1,19 +1,44 @@
 
+  /*jshint -W033 */
+
+  
   console.log("Printing KPIs")
 
-  const User = require('.../models/user-model');
-  const Contract = require('.../models/contract-model');
+  getContracts()
+  async function getContracts () {
+    try {
+      let response= await fetch("http://localhost:3000/contractmanager/kpis/contracts");
+      // console.log(response)
+      let contracts = await response.json();
+      // console.log(contracts)
+        return contracts;
+    }catch (error) {
+      console.log(err);
+      return ''
+    }
+  } 
 
+  getUsers()
+  async function getUsers () {
+    try {
+      let response= await fetch("http://localhost:3000/contractmanager/kpis/users");
+      // console.log(response)
+      let users = await response.json();
+      // console.log(users)
+        return users;
+    }catch (error) {
+      console.log(err);
+      return ''
+    }
+  }
 
   var today = new Date();
   var dd = String(today.getDate()).padStart(2, '0');
   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
   var yyyy = today.getFullYear();
 
-  today = dd + '/' + mm + '/' + yyyy;
+  today = yyyy + "-" + mm + "-" + dd;
   document.getElementById('toDate').value = today;
-  console.log(today)
-  console.log(document.getElementById('toDate'))
 
   //Warnings Required Chart
   var warningsRequiredElement = document.getElementById('warningsRequired');

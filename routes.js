@@ -17,9 +17,11 @@ const contractManagerRouter = express.Router();
 router.use('/contractmanager', contractManagerRouter);
 
 setInterval(sendRemindersCronJobs, 1000*60*60*10);
+// sendRemindersCronJobs()
 
 async function sendRemindersCronJobs(){
   try{
+    console.log('Executing sendRemindersCronJobs')
     const contractList = await Contract.find({mainStatus:"Pending"})
     const usersList = await User.find({},'email role')
     // console.log('usersList:',usersList)
@@ -77,7 +79,7 @@ async function sendRemindersCronJobs(){
   }
 } 
 
-sendRemindersCronJobs()
+
 
 function getDestinatariosReminder(firmas,users,historico){
     // console.log(firmas,users)
@@ -203,10 +205,29 @@ function getDaysBetweenDates(initialDate,finalDate){
     // console.log("Labour Days:",labourDays)
     
     return labourDays
+}
+
+contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
+  try{
+    const contractList = await Contract.find()
+    res.json(contractList)
+
+
+  }catch(error){
+    console.log('Error on /kpis/users',error)
+    res.json()
   }
+})
 
-
-
+contractManagerRouter.get('/kpis/users',async (req,res,next)=>{
+  try{
+    const usersList = await User.find()
+    res.json(usersList)
+  }catch(error){
+    console.log('Error on /kpis/users',error)
+    res.json()
+  }
+})
 
 
 //#region
