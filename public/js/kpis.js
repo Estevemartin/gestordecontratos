@@ -11,7 +11,7 @@ async function getContracts () {
     // console.log(contracts)
       return contracts;
   }catch (error) {
-    console.log(err);
+    console.log(error);
     return ''
   }
 } 
@@ -25,7 +25,7 @@ async function getUsers () {
     // console.log(users)
       return users;
   }catch (error) {
-    console.log(err);
+    console.log(error);
     return ''
   }
 }
