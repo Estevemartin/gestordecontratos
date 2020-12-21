@@ -16,7 +16,7 @@ var crypto = require('crypto');
 const contractManagerRouter = express.Router();
 router.use('/contractmanager', contractManagerRouter);
 
-setInterval(sendRemindersCronJobs, 1000*60*60*10);
+setInterval(sendRemindersCronJobs, 1000*60*60*24);
 // sendRemindersCronJobs()
 
 async function sendRemindersCronJobs(){
@@ -204,8 +204,8 @@ function getDaysBetweenDates(initialDate,finalDate){
     // console.log("No Labour days:",noLabourDays)
     // console.log("Labour Days:",labourDays)
     
-    return labourDays
-}
+    return Math.round(labourDays)
+  }
 
 contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
   try{
