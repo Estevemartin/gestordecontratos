@@ -205,7 +205,7 @@ function getDaysBetweenDates(initialDate,finalDate){
     // console.log("Labour Days:",labourDays)
     
     return Math.round(labourDays)
-  }
+}
 
 contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
   try{
@@ -218,7 +218,6 @@ contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
     res.json()
   }
 })
-
 contractManagerRouter.get('/kpis/users',async (req,res,next)=>{
   try{
     const usersList = await User.find()
