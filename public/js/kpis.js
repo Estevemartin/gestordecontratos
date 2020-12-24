@@ -2,7 +2,9 @@
 
 
 console.log("Printing KPIs")
-
+Chart.Legend.prototype.afterFit = function() {
+  this.height = this.height + 20;
+};
 
 //Charts setup Functions
 async function getAverageDaysFromCreationDateData(chart,year){
@@ -106,50 +108,142 @@ async function getContractsManagedInSixDaysData(chart,year){
 }
 async function getContractsByWarningsData(chart,year){
   const contractList =  await getContracts()
-  let oneWarning =[0,0,0,0,0,0,0,0,0,0,0,0]
-  let twoWarnings=[0,0,0,0,0,0,0,0,0,0,0,0]
-  let threeOrMoreWarnings=[0,0,0,0,0,0,0,0,0,0,0,0]
+  var historicoRelevante = []
+  var oneWarning =[0,0,0,0,0,0,0,0,0,0,0,0]
+  var twoWarnings=[0,0,0,0,0,0,0,0,0,0,0,0]
+  var threeOrMoreWarnings=[0,0,0,0,0,0,0,0,0,0,0,0]
 
-  // // console.log(contractList)
-  // contractList.forEach(contract=>{
-  //   // console.log(contract.mainStatus)
-  //   if (contract.mainStatus==="Closed"){
-  //     const monthNumber = Number(contract.fechaStatusWon.split('/')[1])
-  //     let closingDays = getDaysBetweenDates(contract.fechaStatusWon,contract.historico[contract.historico.length-1].fecha)
-  //     // console.log(closingDays)
-  //     if(closingDays<=6){
-  //       lessThanSixDays[monthNumber] = lessThanSixDays[monthNumber]+1
-  //     } else {
-  //       moreThanSixDays[monthNumber] = moreThanSixDays[monthNumber]+1
-  //     }
-  //   }
+  // console.log(contractList)
+  contractList.forEach(contract=>{
+    const contractYearFilter =Number(contract.fechaRecepcion.split('/')[2])
+    // console.log(contract.mainStatus)
+    if (contract.mainStatus==="Closed"&&contractYearFilter===year){
+      Array.prototype.push.apply(totalhistoricos,contract.historico)
+    }})
 
-    
-  // })
-  // lessThanSixDays.forEach(element=>{
-  //   if (element===0){
-  //     return null
-  //   }else{
-  //     return element
-  //   }
-  // })
+    if (filterType === 'Users'){
+      userFilter=document.getElementById('user-filter')
+      var totalDays = [0,0,0,0,0,0,0,0,0,0,0,0]
+      var countResponses = [0,0,0,0,0,0,0,0,0,0,0,0]
+      // userFilter = userElement.name+" "+userElement.surname
+      indexEspacio = userFilter.indexOf(" ",0)
+      let persona = userFilter.slice(0,indexEspacio+2)+"."
+      // console.log(persona)
 
-  // moreThanSixDays.forEach(element=>{
-  //   if (element===0){
-  //     return null
-  //   }else{
-  //     return element
-  //   }
-  // })
-  // // console.log(lessThanSixDays)
-  // // console.log(moreThanSixDays)
+      var indexLastEmail = 0
+      if (persona==='All U.'){
+        
+      } else {
 
-  // // console.log(chart)
-  // chart.config.data.datasets[0].data = lessThanSixDays
-  // chart.config.data.datasets[1].data = moreThanSixDays
-  // chart.update()
+      }
+      // historicoRelevante.forEach((accion,index)=>{
+      //   if (accion.icono!=='mail-unread-outline' && accion.persona.includes(persona)){
+      //     let days = getDaysBetweenDates(historicoRelevante[indexLastEmail].fecha,accion.fecha)
+      //     // console.log("Last Email:", historicoRelevante[indexLastEmail].accion,historicoRelevante[indexLastEmail].fecha, "-->", accion.fecha,"(",days,")",accion.accion)
+
+      //     const monthNumber = Number(accion.fecha.split('/')[1])
+      //     totalDays[monthNumber-1]=totalDays[monthNumber-1]+days
+      //     countResponses[monthNumber-1]=countResponses[monthNumber-1]+1
+          
+      //   } else if (accion.icono==='mail-unread-outline'){
+      //     indexLastEmail = index
+      //   }
+      // })
+
+      // result = totalDays.map((element,index)=>{
+      //   if (countResponses[index] === 0){
+      //     return null
+      //   } else {
+      //     return Math.round(100*element/countResponses[index])/100
+      //   }
+      // })
+
+      // // console.log("Acumulated Response Days:",totalDays)
+      // // console.log("Responses Counted:",countResponses)
+      // // console.log("Data to Plot:",result)
+
+      // let randomColor=getRandomColor()
+      // randomColorBorder=randomColor + "1)"
+      // randomColorFill=randomColor + "0.2)"
+      // newDataSet = {
+      //   label:userFilter,
+      //   data:result,
+      //   pointStyle:'circle',
+      //   pointRadius:'2',
+      //   borderWidth:1,
+      //   fill:false,
+      //   borderColor:randomColorBorder,
+      //   pointBackgroundColor:randomColorBorder,
+      //   backgroundColor:randomColorFill,
+      // }
+
+      // chart.config.data.datasets.push(newDataSet)
+
+    }else if (filterType==="Departments"){
+      // departments.forEach((departmentsElement,departmentIndex)=>{
+      //   var totalDays = [0,0,0,0,0,0,0,0,0,0,0,0]
+      //   var countResponses = [0,0,0,0,0,0,0,0,0,0,0,0]
+      //   // userFilter = userElement.name+" "+userElement.surname
+      //   // indexEspacio = userFilter.indexOf(" ",0)
+      //   // let persona = userFilter.slice(0,indexEspacio+2)+"."
+      //   // console.log(persona)
+  
+      //   var indexLastEmail = 0
+  
+      //   historicoRelevante.forEach((accion,index)=>{
+      //     if (accion.icono!=='mail-unread-outline' && accion.persona.includes(departmentsElement)){
+      //       let days = getDaysBetweenDates(historicoRelevante[indexLastEmail].fecha,accion.fecha)
+      //       // console.log("Last Email:", historicoRelevante[indexLastEmail].accion,historicoRelevante[indexLastEmail].fecha, "-->", accion.fecha,"(",days,")",accion.accion)
+  
+      //       const monthNumber = Number(accion.fecha.split('/')[1])
+      //       totalDays[monthNumber-1]=totalDays[monthNumber-1]+days
+      //       countResponses[monthNumber-1]=countResponses[monthNumber-1]+1
+            
+      //     } else if (accion.icono==='mail-unread-outline'){
+      //       indexLastEmail = index
+      //     }
+      //   })
+  
+      //   result = totalDays.map((element,index)=>{
+      //     if (countResponses[index] === 0){
+      //       return null
+      //     } else {
+      //       return Math.round(100*element/countResponses[index])/100
+      //     }
+      //   })
+  
+      //   // console.log("Acumulated Response Days:",totalDays)
+      //   // console.log("Responses Counted:",countResponses)
+      //   // console.log("Data to Plot:",result)
+  
+      //   let departmentName=''
+      //   switch(departmentsElement) {
+      //     case 'Oper': departmentName="Operaciones"; departmentColor='#06535C';break;
+      //     case 'Come': departmentName="Comercial"; departmentColor='#67E7F5';break;
+      //     case 'Riesg': departmentName="Control de Riesgos"; departmentColor='#0FC7DB';break;
+      //     case 'PRL': departmentName="PRL"; departmentColor='#42595C';break;
+      //     case 'Gener': departmentName="Dirección General"; departmentColor='#0B99A8';break;
+      //     default:
+      //   }
+      //   newDataSet = {
+      //     label:departmentName,
+      //     data:result,
+      //     pointStyle:'circle',
+      //     pointRadius:'2',
+      //     borderWidth:1,
+      //     fill:false,
+      //     borderColor:departmentColor,
+      //     pointBackgroundColor:departmentColor,
+      //     backgroundColor:departmentColor,
+      //   }
+      //   chart.config.data.datasets.push(newDataSet)
+      // })
+    }
+    chart.update()
 
 }
+
+
 async function getContractsByAverageResponseDays(chart,filterType,year){
   const contractList =  await getContracts()
   const users=await getUsers()
@@ -176,6 +270,7 @@ async function getContractsByAverageResponseDays(chart,filterType,year){
     }
   })
   // console.log(historicoRelevante)
+    // console.log(filterType)
 
   if (filterType === 'Users'){
     users.forEach((userElement,userIndex)=>{
@@ -540,7 +635,8 @@ var averageReceptionWonChart = new Chart(averageReceptionWon, {
         yAxes: [{
           ticks: {
             suggestedMin: 0,
-            fontSize: 16
+            fontSize: 16,
+            precision:0
             // stepSize:5
           },
           scaleLabel:{
@@ -571,7 +667,8 @@ getAverageDaysFromCreationDateData(averageReceptionWonChart,currentYear)
 getContractsManagedInSixDaysData(sixWarningsChart,currentYear)
 getContractsByAverageResponseDays(averageResponseDaysChart,'Users',currentYear)
 setYearsToYearFilter()
-// setUsersOnSelectFilter()
+setUsersOnSelectFilter()
+showFilterSelectorOnAverageResponseDaysChart()
 // setCurrentDateInInput()
 // startHidingFilterSelectors()
 
@@ -646,15 +743,20 @@ function startHidingFilterSelectors(){
 }
 function showFilterSelectorOnAverageResponseDaysChart(select){
   // console.log(select.value)
-  if (select.value === "User"){
+  if (select===undefined){
     document.getElementById('user-filter').style.display='block'
     document.getElementById('department-filter').style.display='none'
-  } else if (select.value === "Department"){
-    document.getElementById('user-filter').style.display='none'
-    document.getElementById('department-filter').style.display='block'
-  } else {
-    document.getElementById('user-filter').style.display='none'
-    document.getElementById('department-filter').style.display='none'
+  } else{
+    if (select.value === "Users" || select.value===undefined){
+      document.getElementById('user-filter').style.display='block'
+      document.getElementById('department-filter').style.display='none'
+    } else if (select.value === "Departments"){
+      document.getElementById('user-filter').style.display='none'
+      document.getElementById('department-filter').style.display='block'
+    } else {
+      document.getElementById('user-filter').style.display='none'
+      document.getElementById('department-filter').style.display='none'
+    }
   }
 }
 function updateChartContractsByWarningsData(){
@@ -662,7 +764,7 @@ function updateChartContractsByWarningsData(){
   getContractsByWarningsData(averageResponseDaysChart,year)
 }
 function updateChartContractsByAverageResponseDays(){
-  let filterType = document.getElementById('select-filter').value
+  let filterType = document.getElementById('select-filter-ard').value
   let year = Number(document.getElementById('year-filter').value)
   getContractsByAverageResponseDays(averageResponseDaysChart,filterType,year)
 }

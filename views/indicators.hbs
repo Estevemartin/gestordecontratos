@@ -6,85 +6,113 @@
       {{!-- <li><span><a href="" class="disabled">Permissions</a></span></li> --}}
   </ul>
 </div>
+{{!-- YEAR FILTER --}}
 <div class="kpis-filters">
-    <span>Year:</span>
-    <div class="select select-register">
-      <select id='year-filter' onchange="updateDataOnYearChange()">
-        {{!-- <option selected value='Users'>2020</option>
-        <option value='Departments'>2021</option> --}}
-      </select> 
+  <span>Year:</span>
+  <div class="select select-register">
+    <select id='year-filter' onchange="updateDataOnYearChange()">
+    </select> 
   </div>
-  
-
 </div>
 <div class="kpis-container">
-    <div class="chart-container">
-      <div class="kpis-title-container">
-        <br><h2>Monthly Required Warnings</h2>
-        <div class="tooltip">?
-          <span class="tooltiptext">Number of contract managed in more or less than 6 days each month.</span>
-        </div>
-      </div>
-      <br>
-      <div class="tds-hor-scroll">
-	      <div class="tds-chart-inner">
-          <canvas id="warningsRequired" height="400"></canvas>
-        </div>
+  {{!-- MONTHLY REQUIRED WARNINGS --}}
+  <div class="chart-container">
+    
+    <div class="kpis-title-container">
+      <br><h2>Monthly Required Warnings</h2>
+      <div class="tooltip">?
+        <span class="tooltiptext">Number of contract managed in more or less than 6 days each month.</span>
       </div>
     </div>
-    <div class="chart-container">
-      <div class="kpis-title-container">
-        <br><h2>Contracts Managed in 6 Days</h2>
-        <div class="tooltip">?
-          <span class="tooltiptext">Number of contract managed in more or less than 6 days each month.</span>
-        </div>
+    <br>
+    <div class='kpis-filters' style='margin-top:0px;'>
+      {{!-- SELECT FILTER TYPE --}}
+      <div class="select select-register">
+        <select id='select-filter' onchange="showFilterSelectorOnAverageResponseDaysChart(this)" style="width:220px;margin-right:20px;">
+          <option selected value='Users'>Analize by Users</option>
+          <option value='Departments'>Analize by Departments</option>
+        </select> 
       </div>
-      <br>
-      <div class="tds-hor-scroll">
-	      <div class="tds-chart-inner">
-          <canvas id="sixWarnings"  height="400"></canvas>
-        </div>
+      {{!-- SELECT FILTER TYPE --}}
+      <div class="select select-register">
+        <select id='user-filter' onchange="" style="width:200px;">
+          <option selected value='All Users'>All Users</option>
+
+        </select> 
       </div>
-      
-    </div>
-    <div class="chart-container">
-      <div class="kpis-title-container">
-        <br><h2>Average Response Days</h2>
-        <div class="tooltip">?
-          <span class="tooltiptext">How many days pass between an email is sent and the contract is accepted or rejected.</span>
-        </div>
+      {{!-- SELECT FILTER TYPE --}}
+      <div class="select select-register">
+        <select id='department-filter' onchange="" style="width:200px;">
+          <option selected value='All Departments'>All Departments</option>
+          <option value='Operaciones'>Operaciones</option>
+          <option value='Comercial'>Comercial</option>
+          <option value='Control de Riesgos'>Control de Riesgos</option>
+          <option value='PRL'>PRL</option>
+        </select> 
       </div>
-      <br>
-      <div class='kpis-filters' style='margin-top:0px;'>
-        {{!-- SELECT FILTER TYPE --}}
-        <div class="select select-register">
-          <select id='select-filter' onchange="updateChartAverageReponseDays()" style="width:250px;">
-            <option selected value='Users'>Analize by Users</option>
-            <option value='Departments'>Analize by Departments</option>
-          </select> 
-        </div>
-      </div> 
-      <div class="tds-hor-scroll">
-	      <div class="tds-chart-inner">
-          <canvas id="averageResponseDays"  height="400"></canvas>
-        </div>
+    </div> 
+    <div class="tds-hor-scroll">
+      <div class="tds-chart-inner">
+        <canvas id="warningsRequired" height="400"></canvas>
       </div>
     </div>
-    <div class="chart-container">
-      <div class="kpis-title-container">
-        <br><h2>Average days from creation date</h2>
-        <div class="tooltip">?
-          <span class="tooltiptext">How many days pass between the day when the contracts are uploaded to the platofm and the "reception date" or "won date".</span>
-        </div>
-      </div>
-      <br>
-      <div class="br-kpis-div"><br><br><br></div>
-      <div class="tds-hor-scroll">
-	      <div class="tds-chart-inner">
-          <canvas id="averageReceptionWon" height="400" ></canvas>
-        </div>
+  </div>
+  {{!-- AVERAGE RESPONSE DAYS --}}
+  <div class="chart-container">
+    <div class="kpis-title-container">
+      <br><h2>Average Response Days</h2>
+      <div class="tooltip">?
+        <span class="tooltiptext">How many days pass between an email is sent and the contract is accepted or rejected.</span>
       </div>
     </div>
+    <br>
+    <div class='kpis-filters' style='margin-top:0px;'>
+      {{!-- SELECT FILTER TYPE --}}
+      <div class="select select-register">
+        <select id='select-filter-ard' onchange="updateChartContractsByAverageResponseDays(this)" style="width:250px;">
+          <option selected value='Users'>Analize by Users</option>
+          <option value='Departments'>Analize by Departments</option>
+        </select> 
+      </div>
+    </div> 
+    <div class="tds-hor-scroll">
+      <div class="tds-chart-inner">
+        <canvas id="averageResponseDays"  height="400"></canvas>
+      </div>
+    </div>
+  </div>
+  {{!-- CONTRACTS MANAGED IN 6 DAYS --}}
+  <div class="chart-container">
+    <div class="kpis-title-container">
+      <br><h2>Contracts Managed in 6 Days</h2>
+      <div class="tooltip">?
+        <span class="tooltiptext">Number of contract managed in more or less than 6 days each month.</span>
+      </div>
+    </div>
+    <br>
+    <div class="tds-hor-scroll">
+      <div class="tds-chart-inner">
+        <canvas id="sixWarnings"  height="400"></canvas>
+      </div>
+    </div>
+    
+  </div>
+  {{!-- AVERAGE DAYS FROM CREATING DATE --}}
+  <div class="chart-container">
+    <div class="kpis-title-container">
+      <br><h2>Average days from creation date</h2>
+      <div class="tooltip">?
+        <span class="tooltiptext">How many days pass between the day when the contracts are uploaded to the platofm and the "reception date" or "won date".</span>
+      </div>
+    </div>
+    <br>
+    {{!-- <div class="br-kpis-div"><br><br><br></div> --}}
+    <div class="tds-hor-scroll">
+      <div class="tds-chart-inner">
+        <canvas id="averageReceptionWon" height="400" ></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
 <script src="../js/kpis.js"></script>

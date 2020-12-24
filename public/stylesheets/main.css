@@ -1117,6 +1117,7 @@ canvas{
     flex-wrap: wrap;
 	justify-content: center;
     margin:40px 5% 0px;
+    
 }
 .kpis-filters input{
     width:190px;
