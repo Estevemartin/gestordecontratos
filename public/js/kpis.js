@@ -5,6 +5,7 @@ console.log("Printing KPIs")
 // getContracts()
 async function getContracts () {
   try {
+    // Editar URL para deploy con "http://assaabloy.mpasolutions.es/contractmanager/kpis/contracts"
     let response= await fetch("http://localhost:3000/contractmanager/kpis/contracts");
     // console.log(response)
     let contracts = await response.json();
