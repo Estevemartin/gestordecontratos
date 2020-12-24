@@ -1119,6 +1119,12 @@ canvas{
     margin-right: 20px;
     width: 170px;
 }
+#select-filter,  #user-filter, #department-filter{
+    width: 190px;
+}
+.spacer{
+    width: 20px;
+}
 /* .kpis-filters>div{
     display:flex;
     flex-wrap: nowrap;
@@ -1134,7 +1140,11 @@ canvas{
             grid-template-columns: 1fr 42%;
         }
     }
-
+    @media(max-width: 1055px){
+        .spacer{
+            display:none;
+        }
+    }
     @media(max-width: 1024px){
         .archivos-nav span{
             display: none;

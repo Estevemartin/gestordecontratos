@@ -7,23 +7,12 @@
   </ul>
 </div>
 <div class="kpis-filters">
-  <div class="select select-register" style="margin-right: 20px;">
-    <select id='kpi-department'>
-      <option selected hidden value=''>Department</option>
-      <option value='Comercial'>Comercial</option>
-      <option value='Operaciones'>Operaciones</option>
-      <option value='Control de Riesgos'>Control de Riesgos</option>
-      <option value='PRL'>PRL</option>
-      <option value='All Departments'>All Departments</option>
-    </select> 
-  </div>
-  <div>
-    <span>From:</span>
-    <input type='date' name='fromDate' id='fromDate'>
-  </div>
-  <div>
-    <span>To:</span>
-    <input type='date'  name='toDate' id='toDate'> 
+    <span>Year:</span>
+    <div class="select select-register">
+      <select id='year-filter' onchange="updateChartAverageReponseDays()">
+        <option selected value='Users'>2020</option>
+        <option value='Departments'>2021</option>
+      </select> 
   </div>
   
 
@@ -39,13 +28,21 @@
     </div>
     <div class="chart-container">
       <br><h2>Average Response Days</h2><br>
+      <div class='kpis-filters' style='margin-top:0px;'>
+        {{!-- SELECT FILTER TYPE --}}
+        <div class="select select-register">
+          <select id='select-filter' onchange="updateChartAverageReponseDays()" style="width:250px;">
+            <option selected value='Users'>Analize by Users</option>
+            <option value='Departments'>Analize by Departments</option>
+          </select> 
+        </div>
+      </div> 
       <canvas id="averageResponseDays" height="300"></canvas>
     </div>
     <div class="chart-container">
       <br><h2>Average days from creation date</h2><br>
       <canvas id="averageReceptionWon" height="300"></canvas>
     </div>
-
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
 <script src="../js/kpis.js"></script>
