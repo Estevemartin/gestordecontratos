@@ -549,7 +549,7 @@ async function setUsersOnSelectFilter(){
 async function getContracts () {
   try {
     // let response= await fetch("http://localhost:3000/contractmanager/kpis/contracts");
-    let response= await fetch("http://assaabloy.mpasolutions.es/contractmanager/kpis/contracts");
+    let response= await fetch("https://assaabloy.mpasolutions.es/contractmanager/kpis/contracts");
 
     // console.log(response)
     let contracts = await response.json();
@@ -563,7 +563,7 @@ async function getContracts () {
 async function getUsers () {
   try {
     // let response= await fetch("http://localhost:3000/contractmanager/kpis/users");
-    let response= await fetch("http://assaabloy.mpasolutions.es/contractmanager/kpis/users");
+    let response= await fetch("https://assaabloy.mpasolutions.es/contractmanager/kpis/users");
 
     // console.log(response)
     let users = await response.json();
