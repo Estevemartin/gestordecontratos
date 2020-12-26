@@ -1311,6 +1311,7 @@ contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
         res.download(filepath,filename)
     }catch(err){
         console.log("Error al descargar --> ", filepath)
+        res.render("not-found")
     }
 })
 
