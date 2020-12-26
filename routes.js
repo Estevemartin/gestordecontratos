@@ -1644,7 +1644,7 @@ function getHtmlReminderEmailBody(pq,client,comercial,work,amount,finalUser,wonD
         </table>
         <p>Please, find all the documents related to this contract attached to this email.</p>
         <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-        <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+        <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
         <p class="row-after-link">Thank you.</p>
         <p>Best regards,</p>
         <p class="name">Esteve Martín</p>
@@ -1807,7 +1807,7 @@ function getEmailBodyNotifyChanges(pq,client,comercial,work,amount,finalUser,won
                 <p><u>Modifications applied:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -1969,7 +1969,7 @@ function getEmailBodyEscaladoDG(pq,client,comercial,work,amount,finalUser,wonDat
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2131,7 +2131,7 @@ function getEmailBodyEscaladoDirectores(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2294,7 +2294,7 @@ function getEmailBodyContractRejected(pq,client,comercial,work,amount,finalUser,
                 <p><u>Rejection aditional information:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to modify and update the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2456,7 +2456,7 @@ function getEmailBodyNewContractCreated(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager>Manage Contract</a></h4>
+                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
