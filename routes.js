@@ -1,4 +1,6 @@
 /*jshint -W033 */
+/*jshint -W104 */
+/*jshint -W119 */
 const express = require('express');
 const router = express.Router();
 const bcrypt = require("bcryptjs");
@@ -3644,8 +3646,8 @@ async function createErrorMsgRegister(username, usersurname, email, repeatemail,
     //     if(checkedUser){resultErrorMsg.push("This email already existst.")}
     // }
     const userExists = await User.find({email:email})
-    console.log("User Exists:",userExists)
-    if (userExists){resultErrorMsg.push("This email already exists.")}
+    console.log("User Exists Length:",userExists.length)
+    if (userExists.length!==0){resultErrorMsg.push("This email already exists.")}
 
     return resultErrorMsg
 }
