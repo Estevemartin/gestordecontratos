@@ -338,7 +338,7 @@ contractManagerRouter.post('/register',async (req,res,next)=>{
             const hashPass = bcrypt.hashSync(password, salt);
             
             await User.create({name:username,surname:usersurname,email,password:hashPass,role:roleArr,accountActivationToken});
-            let tokenLink =  path.join("https://gestordecontratos-nqx8w.ondigitalocean.app", 'activateAccount', accountActivationToken)
+            let tokenLink =  path.join("https://assaabloy.mpasolutions.es/contractmanager/", 'activateAccount', accountActivationToken)
 
             emailParams={
                 host:process.env.EMAIL_HOST,
@@ -1102,7 +1102,7 @@ contractManagerRouter.post("/forgotPassword",async(req,res,next)=>{
 
             // console.log(tokenExpireDate)
             await User.findOneAndUpdate({email:userEmail},{resetPasswordToken:token,resetPasswordExpires:tokenExpireDate})
-            let tokenLink =  path.join("https://gestordecontratos-nqx8w.ondigitalocean.app", 'resetPassword', token)
+            let tokenLink =  path.join("https://assaabloy.mpasolutions.es/contractmanager/", 'resetPassword', token)
             // console.log("Token Link: ",tokenLink)
             emailParams={
                 host:process.env.EMAIL_HOST,
@@ -1202,7 +1202,7 @@ contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
                 const salt = bcrypt.genSaltSync(bcryptSalt);
                 const hashPass = bcrypt.hashSync(newPass, salt);
                 await User.findOneAndUpdate({resetPasswordToken:token},{resetPasswordToken:undefined,resetPasswordExpires:undefined,password:hashPass})
-                const webLink = "https://gestordecontratos-nqx8w.ondigitalocean.app/"
+                const webLink = "https://assaabloy.mpasolutions.es/contractmanager/"
                 // console.log("User Password Updated")
                 emailParams={
                     host:process.env.EMAIL_HOST,
@@ -1215,7 +1215,7 @@ contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
                     },
                     from:'"Contract Manager - Password Reset"<estevemartinmauri@hotmail.com>',
                     to:user.email,
-                    subject:"Contract Manager - Password has been reseted",
+                    subject:"Contract Manager - Password has been changed",
                     html:getEmailBodyPasswordHasBeenReset(webLink)
                     // attachments:uploadedFiles
                 }
@@ -1520,7 +1520,7 @@ function getHtmlReminderEmailBody(pq,client,comercial,work,amount,finalUser,wonD
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Password has been reseted</title>
+        <title>Password has been changed</title>
         <style>
             
             *{
@@ -2610,7 +2610,7 @@ function getEmailBodyPasswordHasBeenReset(webLink){
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Password has been reseted</title>
+        <title>Password has been changed</title>
         <style>
             
             *{
@@ -2714,7 +2714,7 @@ function getEmailBodyPasswordHasBeenReset(webLink){
             <div class="container">
                 <h1>ASSA ABLOY</h1>
                 <h2>Contract Manager</h2>
-                <h3>Password Successfully Reseted</h3>
+                <h3>Password Successfully Changed</h3>
                 <p>This is a confirmation that your password has been changed in the <b>Contract Manager</b> Platform.</p>
                 <p class="row-before-link"> Please click on the following link to go to the platform.</p>
                 <h4><a class="link" href="`+webLink+`">Go to Contract Manager</a></h4>
@@ -3644,8 +3644,9 @@ async function createErrorMsgRegister(username, usersurname, email, repeatemail,
     //     if(checkedUser){resultErrorMsg.push("This email already existst.")}
     // }
     const userExists = await User.find({email:email})
+    console.log("User Exists:",userExists)
     if (userExists){resultErrorMsg.push("This email already exists.")}
-    
+
     return resultErrorMsg
 }
 async function modifyContract(pq){
