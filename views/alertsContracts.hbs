@@ -56,15 +56,15 @@
     
 function btnSelected(currentBtn){
     let id = currentBtn.id
-    console.log("ID:",id)
+    //console.log("ID:",id)
     let form = document.getElementById("notice-type-"+id)
-        console.log("Form To Show:",form)
+        //console.log("Form To Show:",form)
 
     let buttons = document.getElementsByClassName("department-btn")
-        console.log("All Buttons:",buttons)
+        //console.log("All Buttons:",buttons)
 
     let forms = document.getElementsByClassName("mess-container")
-        console.log("All Forms:",forms)
+        //.log("All Forms:",forms)
 
     for (i=0;i<buttons.length;i++){
         buttons[i].classList.remove("btn-blue")
@@ -78,8 +78,8 @@ function btnSelected(currentBtn){
 
 //CLOSE MESSAGES BTN
 function closeMssgPanel(element){
-    console.log(element)
-    console.log(element.parentElement)
+    //console.log(element)
+    //console.log(element.parentElement)
     //let mssg = document.getElementById('mssg1');
     element.style.display="none";
 }

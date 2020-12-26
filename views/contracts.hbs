@@ -127,12 +127,12 @@
                  <h2 class="blue">Upload files</h2>
                
                 <form class="add-contracts-form" action="/contractmanager/uploadNewContractToDB" method="post" enctype="multipart/form-data">
-                    <input id="file" class="upload-files" type="file" name="excelFile">
-                    <label id="file" for="file">Please select the Excel file </label>
+                    <input id="file" class="upload-files" type="file" name="excelFile" onchange="changeExcelLabel(this)">
+                    <label id="file-label" for="file">Please select the Excel file.</label>
                     <p class="underline-link note-text">Your file must be in '.xlsx' format.</p>
                     <div id="nameFile"></div>
-                    <input id="otherFiles" class="upload-files" type="file" name="otherFiles" multiple>
-                    <label for="otherFiles">Please select the rest of the files </label>
+                    <input id="otherFiles" class="upload-files" type="file" onchange="changeOtherFilesLabel(this)" name="otherFiles" multiple>
+                    <label id="otherFiles-label" for="otherFiles">Please select the rest of the files.</label>
                     {{!-- <input type="file" name="otherFiles" multiple> --}}
                     <input class="create-contracts-btn" type="submit" value="Create Contract">
                     
@@ -248,6 +248,19 @@
 
 <script>
 
+
+function changeExcelLabel(input){
+  let newLabel = "Selected File: "+input.files[0].name
+  let oldLabel = document.getElementById('file-label')
+  oldLabel.innerText = newLabel
+}
+function changeOtherFilesLabel(input){
+  //console.log(input)
+  //console.log(input.files.length)
+  let oldLabel = document.getElementById('otherFiles-label')
+  oldLabel.innerText = input.files.length + " Files Selected."
+}
+
 //ADD NEW CONTRACT MODAL
 function showAddNewContractModal(){
     let approveModal = document.getElementById("addModal");
@@ -256,10 +269,15 @@ function showAddNewContractModal(){
     blurred.classList.add('blurred');
 }
 function closeAddNewContractModal(){
-        let approveModal = document.getElementById("addModal");
-        approveModal.style.display = "none";
-        let blurred = document.getElementById("container");
-        blurred.classList.remove('blurred');
+    let oldLabel = document.getElementById('file-label')
+    oldLabel.innerText = "Please select the Excel file."
+    let oldLabel2 = document.getElementById('otherFiles-label')
+    oldLabel2.innerText = "Please select the rest of the files."
+
+    let approveModal = document.getElementById("addModal");
+    approveModal.style.display = "none";
+    let blurred = document.getElementById("container");
+    blurred.classList.remove('blurred');
 }
 
 

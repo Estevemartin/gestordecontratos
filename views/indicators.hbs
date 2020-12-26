@@ -27,21 +27,21 @@
     <br>
     <div class='kpis-filters' style='margin-top:0px;'>
       {{!-- SELECT FILTER TYPE --}}
-      <div class="select select-register">
+      {{!-- <div class="select select-register">
         <select id='select-filter' onchange="showFilterSelectorOnAverageResponseDaysChart(this)" style="width:220px;margin-right:20px;">
           <option selected value='Users'>Analize by Users</option>
           <option value='Departments'>Analize by Departments</option>
         </select> 
-      </div>
-      {{!-- SELECT FILTER TYPE --}}
-      <div class="select select-register">
+      </div> --}}
+      {{!-- SELECT USERS --}}
+      {{!-- <div class="select select-register">
         <select id='user-filter' onchange="" style="width:200px;">
           <option selected value='All Users'>All Users</option>
 
         </select> 
-      </div>
-      {{!-- SELECT FILTER TYPE --}}
-      <div class="select select-register">
+      </div> --}}
+      {{!-- SELECT DEPARTMENT --}}
+      {{!-- <div class="select select-register">
         <select id='department-filter' onchange="" style="width:200px;">
           <option selected value='All Departments'>All Departments</option>
           <option value='Operaciones'>Operaciones</option>
@@ -49,7 +49,7 @@
           <option value='Control de Riesgos'>Control de Riesgos</option>
           <option value='PRL'>PRL</option>
         </select> 
-      </div>
+      </div> --}}
     </div> 
     <div class="tds-hor-scroll">
       <div class="tds-chart-inner">
@@ -86,7 +86,7 @@
     <div class="kpis-title-container">
       <br><h2>Contracts Managed in 6 Days</h2>
       <div class="tooltip">?
-        <span class="tooltiptext">Number of contract managed in more or less than 6 days each month.</span>
+        <span class="tooltiptext">Number of contract managed in more or less than 6 days from the Won date.</span>
       </div>
     </div>
     <br>

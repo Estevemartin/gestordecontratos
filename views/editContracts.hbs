@@ -131,8 +131,8 @@
             <span id="close-btn-add" class="close-btn" onclick="closeAddNewContractModal()">&times;</span>
             <h2 class="blue">Upload files</h2>
             <form class="add-contracts-form" action="/contractmanager/editContracts/uploadFiles/{{pq}}" method="post" enctype="multipart/form-data">
-                <input id="otherFiles" class="upload-files" type="file" name="otherFiles" multiple>
-                <label for="otherFiles">Please select the rest of the files </label>
+                <input id="otherFiles" class="upload-files" type="file" onchange="changeOtherFilesLabel(this)" name="otherFiles" multiple>
+                <label id="otherFiles-label" for="otherFiles">Please select the rest of the files </label>
                 <input class="create-contracts-btn" type="submit" value="Upload">
             </form>
         </div>
@@ -177,6 +177,13 @@
     </div>
 </div>
 <script>
+
+  function changeOtherFilesLabel(input){
+  //console.log(input)
+  //console.log(input.files.length)
+  let oldLabel = document.getElementById('otherFiles-label')
+  oldLabel.innerText = input.files.length + " Files Selected."
+} 
 //UPLOAD FILES MODAL
 function showAddNewContractModal(){
     let approveModal = document.getElementById("addModal");
