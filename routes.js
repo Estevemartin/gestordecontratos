@@ -3643,7 +3643,9 @@ async function createErrorMsgRegister(username, usersurname, email, repeatemail,
     //     const checkedUser = await User.findOne({email:email})
     //     if(checkedUser){resultErrorMsg.push("This email already existst.")}
     // }
-
+    const userExists = await User.find({email:email})
+    if (userExists){resultErrorMsg.push("This email already exists.")}
+    
     return resultErrorMsg
 }
 async function modifyContract(pq){
