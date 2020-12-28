@@ -42,7 +42,7 @@ async function sendRemindersCronJobs(){
       let days=getDaysBetweenDates(lastEmailSent.fecha,getCurrentDate())
       // console.log('dias desde último envio:',days)
 
-      if (days>=1){
+      if (days>=3){
         console.log("Lets send reminder")
         // console.log('Firmas:',contract.firmas)
         let destinatariosReminder = getDestinatariosReminder(contract.firmas,usersList,contract.historico)
@@ -3648,6 +3648,7 @@ async function createErrorMsgRegister(username, usersurname, email, repeatemail,
     const userExists = await User.find({email:email})
     console.log("User Exists Length:",userExists.length)
     if (userExists.length!==0){resultErrorMsg.push("This email already exists.")}
+    if (!email.includes('@assaabloy.com')||email!=='estevemartinmauri@hotmail.com'||email!=='esteve.martin@mpasolutions.es'){resultErrorMsg.push("This email doesn't belongs to the company.")}
 
     return resultErrorMsg
 }
