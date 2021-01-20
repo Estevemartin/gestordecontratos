@@ -15,8 +15,8 @@ const Contract = require('./models/contract-model');
 const Notice = require('./models/notice-model')
 var crypto = require('crypto');
 // const config = require('./config.js');
-const contractManagerRouter = express.Router();
-router.use('/contractmanager', contractManagerRouter);
+// const contractManagerRouter = express.Router();
+// router.use('', router);
 
 setInterval(sendRemindersCronJobs, 1000*60*60*24);
 // sendRemindersCronJobs()
@@ -209,7 +209,7 @@ function getDaysBetweenDates(initialDate,finalDate){
     return Math.round(labourDays)
 }
 
-contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
+router.get('/kpis/contracts',async (req,res,next)=>{
   try{
     const contractList = await Contract.find()
     res.json(contractList)
@@ -220,7 +220,7 @@ contractManagerRouter.get('/kpis/contracts',async (req,res,next)=>{
     res.json()
   }
 })
-contractManagerRouter.get('/kpis/users',async (req,res,next)=>{
+router.get('/kpis/users',async (req,res,next)=>{
   try{
     const usersList = await User.find()
     res.json(usersList)
@@ -232,21 +232,21 @@ contractManagerRouter.get('/kpis/users',async (req,res,next)=>{
 
 
 //#region
-contractManagerRouter.get('/',(req,res,next)=>{
+router.get('/',(req,res,next)=>{
     
     // console.log(req.session)
     let template = {
         layout: false
     }
     if (req.session.currentUser) {
-        res.redirect('/contractmanager/displayPendingContracts');
+        res.redirect('/displayPendingContracts');
     } else {
         res.render('login-register/login', template);
     }
 })
-contractManagerRouter.post('/', async(req,res,next)=>{
+router.post('/', async(req,res,next)=>{
     try{
-        // console.log('INSIDE /contractmanager/ POST')
+        // console.log('INSIDE / POST')
         // console.log("Entering Login POST Method")
         const{email, password} = req.body;
         var errorMsg = '';
@@ -288,7 +288,7 @@ contractManagerRouter.post('/', async(req,res,next)=>{
                         await deleteDirectoryContent(path.join(__dirname,"uploadedContracts"))
                         await deleteDirectoryContent(path.join(__dirname,"temporaryFiles"))
 
-                        res.redirect("/contractmanager/displayPendingContracts")                                       //Redirect to home.
+                        res.redirect("/displayPendingContracts")                                       //Redirect to home.
                     }else{
                         errorMsg="Incorrect email or password."                 //Password is inccorrect.
                         formData={errorMsg:errorMsg,email:email,layout:false}
@@ -300,7 +300,7 @@ contractManagerRouter.post('/', async(req,res,next)=>{
     }catch(err){console.log("Error en Login Post:",err)}
 
 })
-contractManagerRouter.get('/register',(req,res,next)=>{
+router.get('/register',(req,res,next)=>{
     // if (req.session!==undefined) {
     //     res.render('contracts');
     // } else {
@@ -311,7 +311,7 @@ contractManagerRouter.get('/register',(req,res,next)=>{
         res.render('login-register/register', template);
     // }
 })
-contractManagerRouter.post('/register',async (req,res,next)=>{
+router.post('/register',async (req,res,next)=>{
     try{
         const{username, usersurname, email, repeatemail, password, repeatedpassword, role,role1,role2,role3,role4} = req.body;
         var errorMsg = [];
@@ -340,7 +340,7 @@ contractManagerRouter.post('/register',async (req,res,next)=>{
             const hashPass = bcrypt.hashSync(password, salt);
             
             await User.create({name:username,surname:usersurname,email,password:hashPass,role:roleArr,accountActivationToken});
-            let tokenLink =  path.join("https://assaabloy.mpasolutions.es/contractmanager/", 'activateAccount', accountActivationToken)
+            let tokenLink =  path.join("https://www.assa-abloy-contract-manager.com/", 'activateAccount', accountActivationToken)
 
             emailParams={
                 host:process.env.EMAIL_HOST,
@@ -369,23 +369,23 @@ contractManagerRouter.post('/register',async (req,res,next)=>{
     }
     
 })
-contractManagerRouter.get('/logout', (req, res, next) => {
+router.get('/logout', (req, res, next) => {
     req.session.destroy((err) => {
-        res.redirect('/contractmanager/');
+        res.redirect('/');
     })
 })
-contractManagerRouter.get('/createContract',(req,res,next)=>{
-    if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+router.get('/createContract',(req,res,next)=>{
+    if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
         if (req.session!==undefined) {
             res.render('contracts');
         } else {
-            res.redirect('/contractmanager/');
+            res.redirect('/');
         }
     }
 })
-contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res)=>{
+router.post("/uploadNewContractToDB",upload.any(), async (req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             if (req.session===undefined) {
                 res.redirect("/")
             }else{
@@ -394,7 +394,7 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
                 if (req.files.length===0){
                     errorMsg="No se ha seleccionado ningún contrato.";
                     // res.render("contracts.hbs",{noFileSelected});
-                    res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg)
+                    res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
                 }else {
                     const sesionEmail = req.session.currentUser.email
                     let currentUser = await User.find({email:sesionEmail})
@@ -407,7 +407,7 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
                     if (ext!=="xlsx" && ext!=="xls" && ext!=="xlsm"){
                         errorMsg="La hoja de firmas no se encuentra en formato Excel."
                         // res.render("contracts.hbs",{noFileSelected})
-                        res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg)
+                        res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
                     }
                     
                     await saveFile(req.files[0].path,tempFile)
@@ -434,7 +434,7 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
 
                     if (errorMsg.length>0){
                         deleteFile(tempFile)
-                        res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg);
+                        res.redirect("/displayPendingContracts?errorMsg="+errorMsg);
                     } else {
                         //Create PQ Folder
                         let contractsFolder = path.join(__dirname, "public", "contracts");
@@ -496,7 +496,7 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
                         // }
                         // console.log("!!!!!!ABOUT TO REDIRECT!!!!!")
                         // res.render("contracts.hbs",{formData});
-                        res.redirect("/contractmanager/displayPendingContracts?successMsg="+successMsg);
+                        res.redirect("/displayPendingContracts?successMsg="+successMsg);
                     }
                 }
             }
@@ -504,10 +504,10 @@ contractManagerRouter.post("/uploadNewContractToDB",upload.any(), async (req,res
     }catch(err){console.log("Error en Upload New Contract:",err)}
 
 });
-contractManagerRouter.get("/displayClosedContracts", async (req,res)=>{
+router.get("/displayClosedContracts", async (req,res)=>{
     try{
         // console.log("INSIDE DISPLAY CLOSED CONTRACTS")
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const contractList = await Contract.find({visible:true,mainStatus:"Closed"},'pq cliente importe comercial')
             // console.log(contractList)
             contractList.forEach(pq=>{
@@ -519,10 +519,10 @@ contractManagerRouter.get("/displayClosedContracts", async (req,res)=>{
         }
     }catch(err){console.log("Error en DisplayClosedContracts Get:",err)}
 })
-contractManagerRouter.get("/displayPendingContracts", async (req,res)=>{
+router.get("/displayPendingContracts", async (req,res)=>{
     try{
         // console.log(req.session.currentUser)
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
         
             const errorMsg = req.query.errorMsg
             const successMsg = req.query.successMsg
@@ -571,9 +571,9 @@ contractManagerRouter.get("/displayPendingContracts", async (req,res)=>{
         }
     }catch(err){console.log("Error en DisplayPendingContracts Get:",err)}
 })
-contractManagerRouter.post("/approveContract/:id",async(req,res)=>{
+router.post("/approveContract/:id",async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
             // console.log("ENTERED APPROVE CONTRACT / ID")
             const {role,approveInfo}=req.body
@@ -625,7 +625,7 @@ contractManagerRouter.post("/approveContract/:id",async(req,res)=>{
             // console.log("HISTORICO EN DB: ",historico)
             // console.log(nuevaAccion)
             if (errorMsg!==""){
-                res.redirect('/contractmanager/displayPendingContracts?errorMsg='+errorMsg)
+                res.redirect('/displayPendingContracts?errorMsg='+errorMsg)
             }else{
                 //Save Approve Action
                 historico.push(nuevaAccion)
@@ -701,18 +701,18 @@ contractManagerRouter.post("/approveContract/:id",async(req,res)=>{
                 // await sendEmail(emailParams)
                 // console.log("!!!!!!!!!!ABOUT TO DISPLAY SUCCES MESSAGE!!!!!!!!!!!!!")
                 // successMsg = "Contrato Aprobado Correctamente"
-                res.redirect('/contractmanager/displayPendingContracts?successMsg='+successMsg)
+                res.redirect('/displayPendingContracts?successMsg='+successMsg)
             }
         }
     }catch(err){
         console.log("Error en Approve Contract ID Post:",err)
         errorMsg = "No se ha podido aprobar el contrato."
-        res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg)
+        res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
     }
 })
-contractManagerRouter.get("/deleteContract/:id",async(req,res)=>{
+router.get("/deleteContract/:id",async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             // console.log(req.params.id)
             const id=req.params.id
             const contractToDelete = await Contract.findOne({_id:id})
@@ -725,17 +725,17 @@ contractManagerRouter.get("/deleteContract/:id",async(req,res)=>{
             });
             await Contract.deleteOne({_id:id})
             successMsg = "Contrato Borrado"
-            res.redirect("/contractmanager/displayPendingContracts?successMsg="+successMsg)
+            res.redirect("/displayPendingContracts?successMsg="+successMsg)
         }
     }catch(err){
         console.log("Error en DeleteContract ID Get:",err)
         errorMsg = "No se ha podido borrar el contrato."
-        res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg)
+        res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
     }
 })
-contractManagerRouter.post("/rejectContract/:id",async(req,res)=>{
+router.post("/rejectContract/:id",async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
     
             // console.log("ENTERED REJECT CONTRACT / ID")
             const {role,reason,rejectInfo}=req.body
@@ -766,7 +766,7 @@ contractManagerRouter.post("/rejectContract/:id",async(req,res)=>{
             let historico = contract[0].historico
             // console.log("HISTORICO EN DB: ",historico)
             if (errorMsg!==""){
-                res.redirect('/contractmanager/displayPendingContracts?errorMsg='+errorMsg)
+                res.redirect('/displayPendingContracts?errorMsg='+errorMsg)
             }else{
 
                 //Save Reject Action
@@ -789,7 +789,7 @@ contractManagerRouter.post("/rejectContract/:id",async(req,res)=>{
                 await sendNoticeEmail("reject",contract,rejectInfo)
 
                 successMsg = "Contrato Rechazado Correctamente"
-                res.redirect('/contractmanager/displayPendingContracts?successMsg='+successMsg)
+                res.redirect('/displayPendingContracts?successMsg='+successMsg)
             }
 
             // res.render("contracts",{errorMsg})
@@ -797,13 +797,13 @@ contractManagerRouter.post("/rejectContract/:id",async(req,res)=>{
         
     }catch(err){
         errorMsg = "No se ha podido rechazar el contrato."
-        res.redirect('/contractmanager/displayPendingContracts?errorMsg='+errorMsg)
+        res.redirect('/displayPendingContracts?errorMsg='+errorMsg)
         console.log("Error en Reject Contract ID Post:",err)}
 
 })
-contractManagerRouter.get("/alertsContracts",async (req,res,next)=>{
+router.get("/alertsContracts",async (req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
             // let successMsg = req.query.successMsg;
             const {successMsg,errorMsg}=req.query
@@ -820,9 +820,9 @@ contractManagerRouter.get("/alertsContracts",async (req,res,next)=>{
         }
     }catch(err){console.log("Error en AlertsContracts Get:",err)}
 });
-contractManagerRouter.post("/updateAlerts/:alertType",async(req,res)=>{
+router.post("/updateAlerts/:alertType",async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const alertType=req.params.alertType;
             const {email,cc}=req.body
             // console.log(email)
@@ -832,7 +832,7 @@ contractManagerRouter.post("/updateAlerts/:alertType",async(req,res)=>{
             // console.log(email)
             if (email==="" || email===undefined || email===null || isEmail===false || isCC===false){
                 errorMsg = "Debe ponerse al menos un destinatario."
-                res.redirect('/contractmanager/alertsContracts?errorMsg='+errorMsg)
+                res.redirect('/alertsContracts?errorMsg='+errorMsg)
             } else {
                 // console.log(alertType,email,cc,subject,emailBody)
                 const newAlert = await Notice.findOneAndUpdate({noticeType:alertType},{destinatario:email,cc:cc})
@@ -841,7 +841,7 @@ contractManagerRouter.post("/updateAlerts/:alertType",async(req,res)=>{
                 }
                 // console.log(newAlert)
                 const successMsg = "Configuración Guardada"
-                res.redirect("/contractmanager/alertsContracts?successMsg="+successMsg)
+                res.redirect("/alertsContracts?successMsg="+successMsg)
             }
         }
     }catch(err){
@@ -850,10 +850,10 @@ contractManagerRouter.post("/updateAlerts/:alertType",async(req,res)=>{
         res.redirect('/alertsContracts?errorMsg='+errorMsg)
     }
 })
-contractManagerRouter.get("/editContracts/:id",async(req,res,next)=>{
+router.get("/editContracts/:id",async(req,res,next)=>{
     try{
         // console.log("entered the edit contract function")
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const id = req.params.id
             // console.log(req.query)
             const {successMsg, errorMsg} = req.query
@@ -893,9 +893,9 @@ contractManagerRouter.get("/editContracts/:id",async(req,res,next)=>{
     }catch(err){console.log("Error en EditContracts ID Get:",err)}
 
 })
-contractManagerRouter.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
+router.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
             let pq=req.params.pq
             let fileName = req.params.fileName
@@ -921,17 +921,17 @@ contractManagerRouter.get("/deleteFiles/:pq/:fileName",async(req,res,next)=>{
             
             // console.log(newUploadedFiles)
             successMsg = "Fichero eliminado correctamente."
-            res.redirect("/contractmanager/editContracts/"+id+"?successMsg="+successMsg)
+            res.redirect("/editContracts/"+id+"?successMsg="+successMsg)
         }
     }catch(err){
         console.log("Error en DeleteFiles PQ Get:",err)
         errorMsg = "No se ha podido eliminar el fichero."
-        res.redirect("/contractmanager/editContracts/"+id+"?errorMsg="+errorMsg)
+        res.redirect("/editContracts/"+id+"?errorMsg="+errorMsg)
     }
 })
-contractManagerRouter.get("/profile",async(req,res,next)=>{
+router.get("/profile",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
                 //Obtener info del Usuario actual (sesion iniciada)
             const sesionEmail = req.session.currentUser.email
             let currentUser = await User.find({email:sesionEmail})
@@ -941,9 +941,9 @@ contractManagerRouter.get("/profile",async(req,res,next)=>{
         }
     }catch(err){console.log("Error en Profile Get:",err)}
 });
-contractManagerRouter.post("/profile/addRoles/:email",async(req,res,next)=>{
+router.post("/profile/addRoles/:email",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
 
             const{role,role1,role2,role3,role4} = req.body;
             const email = req.params.email
@@ -963,18 +963,18 @@ contractManagerRouter.post("/profile/addRoles/:email",async(req,res,next)=>{
             // console.log(rolesToUpdate)
 
             await User.findOneAndUpdate({email:email},{role:rolesToUpdate})
-            res.redirect("/contractmanager/profile")
+            res.redirect("/profile")
         }
     }catch(err){console.log("Error en Profile Add Roles Post:",err)}
     
 })
-contractManagerRouter.post("/editContracts/uploadFiles/:pq/",upload.any(),async(req,res)=>{
+router.post("/editContracts/uploadFiles/:pq/",upload.any(),async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
                 if (req.files.length===0){
                 errorMsg="No file selected.";
                 // res.render("contracts.hbs",{noFileSelected});
-                res.redirect("/contractmanager/displayPendingContracts?errorMsg="+errorMsg)
+                res.redirect("/displayPendingContracts?errorMsg="+errorMsg)
             }else {
                 let pq = req.params.pq
                 pqFolderName = editPQ(pq)
@@ -991,18 +991,18 @@ contractManagerRouter.post("/editContracts/uploadFiles/:pq/",upload.any(),async(
                 }
                 await Contract.findOneAndUpdate({pq:pq},{uploadedFiles:newUploadedFiles})
                 successMsg = "Fichero añadido correctamente."
-                res.redirect("/contractmanager/editContracts/"+pqId+"?successMsg="+successMsg)
+                res.redirect("/editContracts/"+pqId+"?successMsg="+successMsg)
             }
         }
     }catch(err){
         console.log("Error en Edit Contracts UploadFiles PQ Post:",err)
         errorMsg = "No se ha podido subir el fichero."
-        res.redirect("/contractmanager/editContracts/"+id+"?errorMsg="+errorMsg)
+        res.redirect("/editContracts/"+id+"?errorMsg="+errorMsg)
     }
 })
-contractManagerRouter.get("/deleteRole/:role",async(req,res)=>{
+router.get("/deleteRole/:role",async(req,res)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const email = req.session.currentUser.email
             const roleToDelete = req.params.role
             let currentUser = await User.find({email:email})
@@ -1014,13 +1014,13 @@ contractManagerRouter.get("/deleteRole/:role",async(req,res)=>{
                 }
             }
             await User.findOneAndUpdate({email:email},{role:newRoleList})
-            res.redirect("/contractmanager/profile")
+            res.redirect("/profile")
         }
     }catch(err){console.log("Error en deleteRole Role Get:",err)}
 })
-contractManagerRouter.get("/profile/changePassword",async(req,res,next)=>{
+router.get("/profile/changePassword",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             // console.log(req.query)
             let successMsg=req.query.successMsg
             let errorMsg = req.query.errorMsg
@@ -1039,9 +1039,9 @@ contractManagerRouter.get("/profile/changePassword",async(req,res,next)=>{
         
     }catch(err){console.log("Error en /Profile/changePassword Get:",err)}
 })
-contractManagerRouter.post("/profile/uploadNewPassword",async(req,res,next)=>{
+router.post("/profile/uploadNewPassword",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             const {currentPass,newPass,repeatedPass}=req.body
             const sesionEmail = req.session.currentUser.email
             let currentUser = await User.find({email:sesionEmail})
@@ -1054,10 +1054,10 @@ contractManagerRouter.post("/profile/uploadNewPassword",async(req,res,next)=>{
                     const hashPass = bcrypt.hashSync(newPass, salt);
                     await User.findByIdAndUpdate({"_id":currentUser[0].id},{password:hashPass})
                     successMsg="Password Succesfully Changed."
-                    res.redirect('/contractmanager/profile/changePassword?successMsg='+successMsg)
+                    res.redirect('/profile/changePassword?successMsg='+successMsg)
                 }else{
                     errorMsg="Incorrect password."
-                    res.redirect('/contractmanager/profile/changePassword?errorMsg='+errorMsg)
+                    res.redirect('/profile/changePassword?errorMsg='+errorMsg)
 
                 }
             } else{
@@ -1073,7 +1073,7 @@ contractManagerRouter.post("/profile/uploadNewPassword",async(req,res,next)=>{
     }catch(err){console.log("Error en /profile/uploadNewPAssword: ",err)}
 })
 
-contractManagerRouter.get("/forgotPassword",async(req,res,next)=>{
+router.get("/forgotPassword",async(req,res,next)=>{
     try{
         let template = {
             layout: false
@@ -1084,7 +1084,7 @@ contractManagerRouter.get("/forgotPassword",async(req,res,next)=>{
     }
     
 })
-contractManagerRouter.post("/forgotPassword",async(req,res,next)=>{
+router.post("/forgotPassword",async(req,res,next)=>{
     try {
 
         let userEmail = req.body.email
@@ -1104,7 +1104,7 @@ contractManagerRouter.post("/forgotPassword",async(req,res,next)=>{
 
             // console.log(tokenExpireDate)
             await User.findOneAndUpdate({email:userEmail},{resetPasswordToken:token,resetPasswordExpires:tokenExpireDate})
-            let tokenLink =  path.join("https://assaabloy.mpasolutions.es/contractmanager/", 'resetPassword', token)
+            let tokenLink =  path.join("https://www.assa-abloy-contract-manager.com/", 'resetPassword', token)
             // console.log("Token Link: ",tokenLink)
             emailParams={
                 host:process.env.EMAIL_HOST,
@@ -1134,7 +1134,7 @@ contractManagerRouter.post("/forgotPassword",async(req,res,next)=>{
     }
 })
 
-contractManagerRouter.get("/resetPassword/:token",async(req,res,next)=>{
+router.get("/resetPassword/:token",async(req,res,next)=>{
     try{
         // res.render("forgotPassNewPass")
         let token = req.params.token
@@ -1151,7 +1151,7 @@ contractManagerRouter.get("/resetPassword/:token",async(req,res,next)=>{
     
 
 })
-contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
+router.post("/resetPassword/:token",async(req,res,next)=>{
     // console.log("INSIDE RESETPASSWORD/:TOKEN")
     try{
 
@@ -1204,7 +1204,7 @@ contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
                 const salt = bcrypt.genSaltSync(bcryptSalt);
                 const hashPass = bcrypt.hashSync(newPass, salt);
                 await User.findOneAndUpdate({resetPasswordToken:token},{resetPasswordToken:undefined,resetPasswordExpires:undefined,password:hashPass})
-                const webLink = "https://assaabloy.mpasolutions.es/contractmanager/"
+                const webLink = "https://www.assa-abloy-contract-manager.com/"
                 // console.log("User Password Updated")
                 emailParams={
                     host:process.env.EMAIL_HOST,
@@ -1236,7 +1236,7 @@ contractManagerRouter.post("/resetPassword/:token",async(req,res,next)=>{
     }
 })
 
-contractManagerRouter.get("/activateAccount/:token",async(req,res,next)=>{
+router.get("/activateAccount/:token",async(req,res,next)=>{
     try{
         let token = req.params.token
         const user = await User.findOne({ accountActivationToken: token });
@@ -1251,9 +1251,9 @@ contractManagerRouter.get("/activateAccount/:token",async(req,res,next)=>{
     }
 })
 
-contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
+router.post("/notifyChanges/:id",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             let id = req.params.id
             let changesInfo = req.body.notifyChangesInfo
             // console.log(changesInfo)
@@ -1291,16 +1291,16 @@ contractManagerRouter.post("/notifyChanges/:id",async(req,res,next)=>{
             let successMsg = "The changes have been notified."
             // console.log("ID en Final Rutina:",id)
             
-            res.redirect("/contractmanager/editContracts/" + id + "?successMsg="+successMsg)
+            res.redirect("/editContracts/" + id + "?successMsg="+successMsg)
         }   
     }catch(err){
         let id = req.params.id
         let errorMsg="No se han podido notificar los cambios."
-        res.redirect("/contractmanager/editContracts/" + id + "?errorMsg="+errorMsg)
+        res.redirect("/editContracts/" + id + "?errorMsg="+errorMsg)
         console.log("Error on notifyChanges/:id -->",err)
     }
 })
-contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
+router.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     try{
         // console.log("Inside Downloadfile")
         const {pq,filename} = req.params
@@ -1317,9 +1317,9 @@ contractManagerRouter.get("/downloadFile/:pq/:filename",async(req,res,next)=>{
     }
 })
 
-contractManagerRouter.get("/indicators",async(req,res,next)=>{
+router.get("/indicators",async(req,res,next)=>{
     try{
-        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/contractmanager/")}else{
+        if (!req.session.currentUser || req.session.currentUser===undefined ){res.redirect("/")}else{
             //     //Obtener info del Usuario actual (sesion iniciada)
             // const sesionEmail = req.session.currentUser.email
             // let currentUser = await User.find({email:sesionEmail})
@@ -1647,7 +1647,7 @@ function getHtmlReminderEmailBody(pq,client,comercial,work,amount,finalUser,wonD
         </table>
         <p>Please, find all the documents related to this contract attached to this email.</p>
         <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-        <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+        <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
         <p class="row-after-link">Thank you.</p>
         <p>Best regards,</p>
         <p class="name">Esteve Martín</p>
@@ -1810,7 +1810,7 @@ function getEmailBodyNotifyChanges(pq,client,comercial,work,amount,finalUser,won
                 <p><u>Modifications applied:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+                <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -1972,7 +1972,7 @@ function getEmailBodyEscaladoDG(pq,client,comercial,work,amount,finalUser,wonDat
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+                <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2134,7 +2134,7 @@ function getEmailBodyEscaladoDirectores(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+                <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2297,7 +2297,7 @@ function getEmailBodyContractRejected(pq,client,comercial,work,amount,finalUser,
                 <p><u>Rejection aditional information:</u> `+info+`</p>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to modify and update the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+                <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -2459,7 +2459,7 @@ function getEmailBodyNewContractCreated(pq,client,comercial,work,amount,finalUse
                 </table>
                 <p>Please, find all the documents related to this contract attached to this email.</p>
                 <p class="row-before-link"> Click on the following link to accept or reject the contract:</p>
-                <h4><a class="link" href="http://assaabloy.mpasolutions.es/contractmanager">Manage Contract</a></h4>
+                <h4><a class="link" href="https://www.assa-abloy-contract-manager.com/">Manage Contract</a></h4>
                 <p class="row-after-link">Thank you.</p>
                 <p>Best regards,</p>
                 <p class="name">Esteve Martín</p>
@@ -3849,4 +3849,4 @@ async function createRoleSelector(role){
 
 
 module.exports=router;
-module.exports=contractManagerRouter;
+// module.exports=router;

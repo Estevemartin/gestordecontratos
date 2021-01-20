@@ -1,9 +1,9 @@
 <div id="container">       
         <div class="second-nav">
             <ul>
-                <li><a href="/contractmanager/">Contracts</a></li>
-                <li><a href="/contractmanager/alertsContracts">Alerts</a></li>
-               <li><a href="/contractmanager/indicators" class="link-nav">Indicators</a></li>
+                <li><a href="/">Contracts</a></li>
+                <li><a href="/alertsContracts">Alerts</a></li>
+               <li><a href="/indicators" class="link-nav">Indicators</a></li>
                 {{!-- <li><span><a href="" class="disabled">Permissions</a></span></li> --}}
             </ul>
         </div>
@@ -29,7 +29,7 @@
                         {{errorMsg}}
                     </div>
                 {{/if}}
-                <a href="/contractmanager/"><img id="back-btn" src="/images/icons/back-btn.png"></a>
+                <a href="/"><img id="back-btn" src="/images/icons/back-btn.png"></a>
             </div>
             <div class="info-container border">
                 <div class="block">
@@ -113,8 +113,8 @@
                         <div class="icons-files">
                             {{!-- <a href="public/contracts/{{../pq}}/{{fileName}}" download="{{fileName}}" ><ion-icon id="download-btn" name="download-outline"></ion-icon></a> --}}
                             {{!-- <a href="{{filePath}}" download="{{fileName}}" ><ion-icon id="download-btn" name="download-outline"></ion-icon></a> --}}
-                            <a href="/contractmanager/downloadFile/{{../pq}}/{{fileName}}"><ion-icon id="download-btn" name="download-outline"></ion-icon></a>
-                            {{#if ../showeditButons}}<a href="/contractmanager/deleteFiles/{{../pq}}/{{fileName}}"><ion-icon id="delete-btn" name="trash-outline"></ion-icon></a>{{/if}}
+                            <a href="/downloadFile/{{../pq}}/{{fileName}}"><ion-icon id="download-btn" name="download-outline"></ion-icon></a>
+                            {{#if ../showeditButons}}<a href="/deleteFiles/{{../pq}}/{{fileName}}"><ion-icon id="delete-btn" name="trash-outline"></ion-icon></a>{{/if}}
                         </div>
                     </div>
                     {{/each}}
@@ -130,7 +130,7 @@
         <div class="modal-content modal-blue">
             <span id="close-btn-add" class="close-btn" onclick="closeAddNewContractModal()">&times;</span>
             <h2 class="blue">Upload files</h2>
-            <form class="add-contracts-form" action="/contractmanager/editContracts/uploadFiles/{{pq}}" method="post" enctype="multipart/form-data">
+            <form class="add-contracts-form" action="/editContracts/uploadFiles/{{pq}}" method="post" enctype="multipart/form-data">
                 <input id="otherFiles" class="upload-files" type="file" onchange="changeOtherFilesLabel(this)" name="otherFiles" multiple>
                 <label id="otherFiles-label" for="otherFiles">Please select the rest of the files </label>
                 <input class="create-contracts-btn" type="submit" value="Upload">
@@ -142,7 +142,7 @@
         <div class="modal-content modal-blue">
             <span id="close-btn-add" class="close-btn" onclick="closeNotifyChangestModal()">&times;</span>
             <h2 class="blue">Notify Changes</h2>
-            <form class="add-contracts-form" action="/contractmanager/notifyChanges/{{id}}" method="post"><br><br>
+            <form class="add-contracts-form" action="/notifyChanges/{{id}}" method="post"><br><br>
                 {{!-- <input id="otherFiles" class="upload-files" type="file" name="otherFiles" multiple> --}}
                 {{!-- <label for="updateInfo">Please select the rest of the files </label> --}}
                 <textarea  class="textarea-reject" placeholder="Message...." rows ="10" name="notifyChangesInfo"></textarea><br><br><br>
